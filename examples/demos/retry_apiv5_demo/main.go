@@ -4,7 +4,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -22,7 +22,7 @@ func main() {
 	}
 }
 
-//nolint:gomnd
+//nolint:mnd
 func showRetryingOnMultipleCodes() error {
 	demos.Step("Create fake Kentik API server")
 	h := newSpyHTTPHandler([]httpResponse{
@@ -78,7 +78,7 @@ func newSpyHTTPHandler(responses []httpResponse) *spyHTTPHandler {
 }
 
 func (h *spyHTTPHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		writeResponse(
 			rw, http.StatusInternalServerError,

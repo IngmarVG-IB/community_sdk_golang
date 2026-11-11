@@ -8,10 +8,11 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/kentik/community_sdk_golang/kentikapi"
 	"github.com/kentik/community_sdk_golang/kentikapi/internal/testutil"
 	"github.com/kentik/community_sdk_golang/kentikapi/models"
-	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -330,7 +331,7 @@ func TestClient_CreateTag(t *testing.T) {
 			expectedResult: newTestTagOne(t),
 		},
 	}
-	// nolint: dupl
+	//nolint: dupl
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// arrange

@@ -10,8 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kentik/community_sdk_golang/kentikapi/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/models"
 )
 
 func TestAlertingAPIExample(t *testing.T) {

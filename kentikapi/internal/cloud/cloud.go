@@ -4,10 +4,11 @@ import (
 	"context"
 
 	cloudexportpb "github.com/kentik/api-schema-public/gen/go/kentik/cloud_export/v202101beta1"
+	"google.golang.org/grpc"
+
 	"github.com/kentik/community_sdk_golang/kentikapi/cloud"
 	kentikerrors "github.com/kentik/community_sdk_golang/kentikapi/internal/errors"
 	"github.com/kentik/community_sdk_golang/kentikapi/models"
-	"google.golang.org/grpc"
 )
 
 // API aggregates cloudexports API methods.

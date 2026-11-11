@@ -7,8 +7,9 @@ import (
 
 	"github.com/AlekSi/pointer"
 	cloudexportpb "github.com/kentik/api-schema-public/gen/go/kentik/cloud_export/v202101beta1"
-	"github.com/kentik/community_sdk_golang/kentikapi/cloud"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/cloud"
 )
 
 const (

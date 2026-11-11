@@ -85,7 +85,7 @@ func (c *RetryConfig) FillDefaults() {
 	}
 }
 
-//nolint:gomnd // This is the only place for these numbers to turn up.
+//nolint:mnd // This is the only place for these numbers to turn up.
 func defaultHTTPClient() *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{

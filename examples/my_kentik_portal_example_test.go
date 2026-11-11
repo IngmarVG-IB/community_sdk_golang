@@ -9,8 +9,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kentik/community_sdk_golang/kentikapi/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/models"
 )
 
 func TestMyKentikPortalAPIExample(t *testing.T) {
@@ -85,5 +86,5 @@ func pickTenantID() (models.ID, error) {
 	if tenants != nil {
 		return tenants[0].ID, nil
 	}
-	return "", fmt.Errorf("No tenants in requested Kentik account: %v", err)
+	return "", fmt.Errorf("No tenants in requested Kentik account: %w", err)
 }

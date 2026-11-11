@@ -10,8 +10,9 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/kentik/community_sdk_golang/kentikapi/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/models"
 )
 
 func TestSitesAPIExample(t *testing.T) {

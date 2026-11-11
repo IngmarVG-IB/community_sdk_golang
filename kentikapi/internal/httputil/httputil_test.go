@@ -12,9 +12,10 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/httputil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/internal/httputil"
 )
 
 // Sequence of calls for single request:
@@ -32,7 +33,7 @@ func TestRetryingClient_Do_ReturnsHTTPTransportError(t *testing.T) {
 	require.NoError(t, err)
 
 	// act
-	//nolint:bodyclose
+
 	resp, err := c.Do(req.WithContext(context.Background()))
 
 	// assert
@@ -94,7 +95,7 @@ func TestRetryingClientWithSpyHTTPTransport_Do(t *testing.T) {
 			require.NoError(t, err)
 
 			// act
-			//nolint:bodyclose
+
 			resp, err := c.Do(req.WithContext(context.Background()))
 
 			// assert
@@ -139,7 +140,6 @@ func TestRetryingClient_Do_HandlesRetryAfterHeader(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	//nolint:bodyclose
 	resp, err := c.Do(req.WithContext(ctx))
 
 	// assert

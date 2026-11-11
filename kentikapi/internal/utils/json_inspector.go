@@ -63,7 +63,8 @@ func (i *JSONPayloadInspector) Int(path string) int {
 }
 
 // Float returns floating point number found at given path.
-//nolint:gomnd
+//
+//nolint:mnd
 func (i *JSONPayloadInspector) Float(path string) float64 {
 	doc := i.Get(path)
 	i.require.NotNil(doc)

@@ -5,10 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/api_payloads"
-	"github.com/kentik/community_sdk_golang/kentikapi/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/internal/api_payloads"
+	"github.com/kentik/community_sdk_golang/kentikapi/models"
 )
 
 func TestQueryChartResponsePNGToQueryChartResult(t *testing.T) {

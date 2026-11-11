@@ -1,7 +1,7 @@
 package models
 
 import (
-	"io/ioutil"
+	"os"
 	"time"
 )
 
@@ -68,7 +68,8 @@ type QueryRequiredFields struct {
 }
 
 // NewQuery creates a Query with all required fields set.
-//nolint:gomnd
+//
+//nolint:mnd
 func NewQuery(q QueryRequiredFields) *Query {
 	return &Query{
 		Metric:          q.Metric,
@@ -252,7 +253,7 @@ type QueryChartResult struct {
 	ImageData []byte // raw chart image binary data that can be directly dumped into a file
 }
 
-//nolint:gosec,gomnd
+//nolint:mnd
 func (r QueryChartResult) SaveImageAs(filename string) error {
-	return ioutil.WriteFile(filename, r.ImageData, 0o644)
+	return os.WriteFile(filename, r.ImageData, 0o644)
 }

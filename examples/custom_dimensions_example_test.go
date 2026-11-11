@@ -10,11 +10,11 @@ import (
 	"math/rand"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/kentik/community_sdk_golang/kentikapi/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/models"
 )
 
 func TestCustomDimensionsAPIExample(t *testing.T) {
@@ -139,9 +139,7 @@ func runCRUDCustomDimensions() error {
 	return nil
 }
 
-// nolint: gosec // no need for cryptographically secure RNG here
 func randID() string {
-	rand.Seed(time.Now().UnixNano())
 	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
 	length := 5
 	var b strings.Builder

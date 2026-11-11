@@ -16,7 +16,7 @@ func ConvertList(input interface{}, convertFunc ConvertFunc, output interface{})
 		panic("ConvertList input argument must be array or slice")
 	}
 	tOutput := reflect.TypeOf(output)
-	if tOutput.Kind() != reflect.Ptr || tOutput.Elem().Kind() != reflect.Slice {
+	if tOutput.Kind() != reflect.Pointer || tOutput.Elem().Kind() != reflect.Slice {
 		panic("ConvertList output argument must be pointer to slice")
 	}
 	// todo: validate convertFunc
@@ -48,11 +48,11 @@ func ConvertList(input interface{}, convertFunc ConvertFunc, output interface{})
 // conversion result is stored under output, or nil is set if input is nil.
 func ConvertOrNone(input interface{}, convertFunc ConvertFunc, output interface{}) error {
 	tInput := reflect.TypeOf(input)
-	if tInput.Kind() != reflect.Ptr {
+	if tInput.Kind() != reflect.Pointer {
 		panic("ConvertOrNone input argument must be a pointer")
 	}
 	tOutput := reflect.TypeOf(output)
-	if tOutput.Kind() != reflect.Ptr || tOutput.Elem().Kind() != reflect.Ptr {
+	if tOutput.Kind() != reflect.Pointer || tOutput.Elem().Kind() != reflect.Pointer {
 		panic("ConvertOrNone output argument must be pointer to pointer")
 	}
 	// todo: validate convertFunc
@@ -63,7 +63,7 @@ func ConvertOrNone(input interface{}, convertFunc ConvertFunc, output interface{
 	outputType := vConvertFunc.Type().Out(0)
 
 	if vInput.IsNil() {
-		nilResult := reflect.Zero(reflect.PtrTo(outputType))
+		nilResult := reflect.Zero(reflect.PointerTo(outputType))
 		vOutput.Set(nilResult)
 		return nil
 	}

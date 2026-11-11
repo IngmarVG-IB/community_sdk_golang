@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/AlekSi/pointer"
+
 	"github.com/kentik/community_sdk_golang/examples/demos"
 	"github.com/kentik/community_sdk_golang/kentikapi"
 	"github.com/kentik/community_sdk_golang/kentikapi/models"
@@ -64,7 +65,7 @@ func createDevice(client *kentikapi.Client) models.ID {
 	return createdDevice.ID
 }
 
-//nolint:gomnd
+//nolint:mnd
 func createInterface(client *kentikapi.Client, deviceID models.ID) models.ID {
 	intf := models.NewInterface(models.InterfaceRequiredFields{
 		DeviceID:             deviceID,
@@ -108,7 +109,7 @@ func deleteDevice(client *kentikapi.Client, deviceID models.ID) {
 	fmt.Println("Successful")
 }
 
-//nolint:gomnd
+//nolint:mnd
 func queryData(client *kentikapi.Client) {
 	// prepare query
 	agg1 := models.NewAggregate(models.AggregateRequiredFields{
@@ -156,7 +157,7 @@ func queryData(client *kentikapi.Client) {
 	demos.ExitOnError(err)
 }
 
-//nolint:gomnd
+//nolint:mnd
 func queryChart(client *kentikapi.Client) {
 	// prepare query
 	agg1 := models.NewAggregate(models.AggregateRequiredFields{

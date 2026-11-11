@@ -12,7 +12,7 @@ import (
 
 type Code int
 
-//go:generate stringer -type=Code
+//go:generate go tool stringer -type=Code
 
 const (
 	Unknown Code = iota

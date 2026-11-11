@@ -6,12 +6,7 @@ import (
 	"net"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	cloudexportpb "github.com/kentik/api-schema-public/gen/go/kentik/cloud_export/v202101beta1"
-	"github.com/kentik/community_sdk_golang/kentikapi"
-	"github.com/kentik/community_sdk_golang/kentikapi/cloud"
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/testutil"
-	"github.com/kentik/community_sdk_golang/kentikapi/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -19,6 +14,11 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+
+	"github.com/kentik/community_sdk_golang/kentikapi"
+	"github.com/kentik/community_sdk_golang/kentikapi/cloud"
+	"github.com/kentik/community_sdk_golang/kentikapi/internal/testutil"
+	"github.com/kentik/community_sdk_golang/kentikapi/models"
 )
 
 const (
@@ -39,7 +39,7 @@ func TestClient_Cloud_GetAllExports(t *testing.T) {
 		{
 			name: "status InvalidArgument received",
 			response: listCEResponse{
-				err: status.Errorf(codes.InvalidArgument, codes.InvalidArgument.String()),
+				err: status.Error(codes.InvalidArgument, codes.InvalidArgument.String()),
 			},
 			expectedError:   true,
 			errorPredicates: []func(error) bool{kentikapi.IsInvalidRequestError},
@@ -157,7 +157,7 @@ func TestClient_Cloud_GetExport(t *testing.T) {
 			requestID:       "13",
 			expectedRequest: &cloudexportpb.GetCloudExportRequest{Id: "13"},
 			response: getCEResponse{
-				err: status.Errorf(codes.InvalidArgument, codes.InvalidArgument.String()),
+				err: status.Error(codes.InvalidArgument, codes.InvalidArgument.String()),
 			},
 			expectedError:   true,
 			errorPredicates: []func(error) bool{kentikapi.IsInvalidRequestError},
@@ -166,7 +166,7 @@ func TestClient_Cloud_GetExport(t *testing.T) {
 			requestID:       "13",
 			expectedRequest: &cloudexportpb.GetCloudExportRequest{Id: "13"},
 			response: getCEResponse{
-				err: status.Errorf(codes.NotFound, codes.NotFound.String()),
+				err: status.Error(codes.NotFound, codes.NotFound.String()),
 			},
 			expectedError:   true,
 			errorPredicates: []func(error) bool{kentikapi.IsNotFoundError},
@@ -214,7 +214,7 @@ func TestClient_Cloud_GetExport(t *testing.T) {
 			expectedResult: &cloud.Export{
 				ID:          "58192",
 				Type:        cloud.ExportTypeKentikManaged,
-				Enabled:     pointer.ToBool(true),
+				Enabled:     new(true),
 				Name:        "minimal-aws-export",
 				Description: "",
 				PlanID:      "11467",
@@ -223,8 +223,8 @@ func TestClient_Cloud_GetExport(t *testing.T) {
 					Bucket:          "dummy-bucket",
 					IAMRoleARN:      "",
 					Region:          "",
-					DeleteAfterRead: pointer.ToBool(false),
-					MultipleBuckets: pointer.ToBool(false),
+					DeleteAfterRead: new(false),
+					MultipleBuckets: new(false),
 				},
 				CurrentStatus: &cloud.ExportStatus{
 					Status:       "",
@@ -394,7 +394,7 @@ func TestClient_Cloud_CreateExport(t *testing.T) {
 			expectedResult: &cloud.Export{
 				ID:          "58192",
 				Type:        cloud.ExportTypeKentikManaged,
-				Enabled:     pointer.ToBool(true),
+				Enabled:     new(true),
 				Name:        "minimal-aws-export",
 				Description: "",
 				PlanID:      "11467",
@@ -403,8 +403,8 @@ func TestClient_Cloud_CreateExport(t *testing.T) {
 					Bucket:          "dummy-bucket",
 					IAMRoleARN:      "",
 					Region:          "",
-					DeleteAfterRead: pointer.ToBool(false),
-					MultipleBuckets: pointer.ToBool(false),
+					DeleteAfterRead: new(false),
+					MultipleBuckets: new(false),
 				},
 				CurrentStatus: &cloud.ExportStatus{
 					Status:       "",
@@ -657,7 +657,7 @@ func TestClient_Cloud_DeleteExport(t *testing.T) {
 			expectedRequest: &cloudexportpb.DeleteCloudExportRequest{Id: "13"},
 			response: deleteCEResponse{
 				data: &cloudexportpb.DeleteCloudExportResponse{},
-				err:  status.Errorf(codes.InvalidArgument, codes.InvalidArgument.String()),
+				err:  status.Error(codes.InvalidArgument, codes.InvalidArgument.String()),
 			},
 			expectedError:   true,
 			errorPredicates: []func(error) bool{kentikapi.IsInvalidRequestError},
@@ -889,8 +889,8 @@ func newAWSExport() *cloud.Export {
 		Bucket:          "dummy-bucket",
 		IAMRoleARN:      "arn:aws:iam::003740049406:role/trafficTerraformIngestRole",
 		Region:          "us-east-2",
-		DeleteAfterRead: pointer.ToBool(true),
-		MultipleBuckets: pointer.ToBool(false),
+		DeleteAfterRead: new(true),
+		MultipleBuckets: new(false),
 	}
 	return ce
 }
@@ -904,7 +904,7 @@ func newAzureExport() *cloud.Export {
 		ResourceGroup:            "dummy-rg",
 		StorageAccount:           "dummy-sa",
 		SubscriptionID:           "dummy-sid",
-		SecurityPrincipalEnabled: pointer.ToBool(true),
+		SecurityPrincipalEnabled: new(true),
 	}
 	return ce
 }
@@ -933,21 +933,21 @@ func newIBMExport() *cloud.Export {
 func newExport() *cloud.Export {
 	return &cloud.Export{
 		Type:        cloud.ExportTypeKentikManaged,
-		Enabled:     pointer.ToBool(true),
+		Enabled:     new(true),
 		Name:        "full-export",
 		Description: "Export with all fields set", // including read-only fields
 		PlanID:      "11467",
 		BGP: &cloud.BGPProperties{
-			ApplyBGP:       pointer.ToBool(true),
+			ApplyBGP:       new(true),
 			UseBGPDeviceID: "dummy-device-id",
 			DeviceBGPType:  "dummy-device-bgp-type",
 		},
 		CurrentStatus: &cloud.ExportStatus{
 			Status:               "ERROR",
 			ErrorMessage:         "BucketRegionError: incorrect region ...",
-			FlowFound:            pointer.ToBool(false),
-			APIAccess:            pointer.ToBool(true),
-			StorageAccountAccess: pointer.ToBool(false),
+			FlowFound:            new(false),
+			APIAccess:            new(true),
+			StorageAccountAccess: new(false),
 		},
 	}
 }

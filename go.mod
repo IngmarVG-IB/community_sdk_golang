@@ -1,36 +1,36 @@
 module github.com/kentik/community_sdk_golang
 
-go 1.17
+go 1.26.0
 
 require (
 	github.com/AlekSi/pointer v1.2.0
-	github.com/antchfx/jsonquery v1.1.4
+	github.com/antchfx/jsonquery v1.3.8
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
-	github.com/hashicorp/go-retryablehttp v0.7.0
-	github.com/kentik/api-schema-public v0.0.0-20220322181339-896729e59945
-	github.com/stretchr/testify v1.7.0
-	golang.org/x/tools v0.1.11
-	google.golang.org/grpc v1.44.0
-	google.golang.org/protobuf v1.27.1
-	mvdan.cc/gofumpt v0.2.0
+	github.com/hashicorp/go-retryablehttp v0.7.8
+	github.com/kentik/api-schema-public v0.0.0-20261110124345-5d1d2fa374e4
+	github.com/stretchr/testify v1.12.1
+	google.golang.org/grpc v1.85.0
+	google.golang.org/protobuf v1.36.12
 )
 
 require (
-	github.com/antchfx/xpath v1.1.7 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-cmp v0.5.6 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.6.0 // indirect
-	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
-	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
-	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20220218161850-94dd64e39d7c // indirect
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
+	github.com/antchfx/xpath v1.3.9 // indirect
+	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.33.0 // indirect
+	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	golang.org/x/mod v0.42.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
+	golang.org/x/tools v0.52.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20261104224025-d1e00e9f33ab // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261104224025-d1e00e9f33ab // indirect
+	mvdan.cc/gofumpt v0.12.0 // indirect
 )
 
-replace github.com/hashicorp/go-retryablehttp v0.7.0 => github.com/Opelord/go-retryablehttp v0.7.1-0.20210813155352-f2396f056078
+tool (
+	golang.org/x/tools/cmd/stringer
+	mvdan.cc/gofumpt
+)

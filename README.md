@@ -8,7 +8,7 @@ This repository is the Kentik Go SDK for the community. It is distributed as _gi
 
 ## Requirements
 
-- [Go](https://golang.org/doc/install) >= 1.15
+- [Go](https://go.dev/doc/install) >= 1.26
 
 ## Installation
 
@@ -47,18 +47,8 @@ Library provides a set of [functions](./kentikapi/errors.go) to check error type
 
 Anybody who wants to contribute to development is welcome to provide pull requests. To work on the SDK, install tools listed in [requirements section](#requirements).
 
-Optional tools:
-- _golangci-lint_ for static code analysis: <https://golangci-lint.run/usage/install/#local-installation>
-- _stringer_ for generating enum String() methods: `go install golang.org/x/tools/cmd/stringer`
-
-Development steps:
-- Compile the code: `go build -tags examples ./...`
-- Run tests: `go test ./...`
-- Run all tests, including usage examples: `go test -tags examples ./...`
-- Regenerate the code: `go generate ./...`
-- Run golangci-lint: `golangci-lint run ./...`
-- Format the code: `./tools/fmt.sh`
-- Check Go module consistency: `./tools/check-go-mod.sh`
+Development commands are in the [Makefile](Makefile) and documented in [AGENTS.md](AGENTS.md):
+`make build test lint vuln generate`.
 
 The project uses ADR to record the architectural decisions: [docs/adr/0001-record-architecture-decisions.md](docs/adr/0001-record-architecture-decisions.md)
 

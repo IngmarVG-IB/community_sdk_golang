@@ -9,8 +9,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kentik/community_sdk_golang/kentikapi/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/models"
 )
 
 func TestSavedFiltersAPIExample(t *testing.T) {

@@ -4,8 +4,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/utils"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/internal/utils"
 )
 
 func TestConvertOrNoneReturnsValue(t *testing.T) {

@@ -4,7 +4,6 @@ package demos
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -63,8 +62,9 @@ func ExitOnError(err error) {
 	}
 }
 
-//nolint:gomnd
 // DisplayQueryDataResult prints returned data series in form of a table.
+//
+//nolint:mnd
 func DisplayQueryDataResult(r models.QueryDataResult) error {
 	const printoutTableFormat = "%v\t%v\t\n" // bits/sec, datetime
 
@@ -113,11 +113,12 @@ func makeTabWriter() *tabwriter.Writer {
 	return w
 }
 
-//nolint:gosec // G204: Subprocess launched with a potential tainted input or cmd arguments - not an issue
 // DisplayQueryChartResult shows returned chart image.
+//
+//nolint:gosec // G204: Subprocess launched with a potential tainted input or cmd arguments - not an issue
 func DisplayQueryChartResult(r models.QueryChartResult) error {
 	// generate temp filename
-	file, err := ioutil.TempFile("", "chart_*."+r.ImageType.String())
+	file, err := os.CreateTemp("", "chart_*."+r.ImageType.String())
 	if err != nil {
 		return err
 	}

@@ -12,16 +12,16 @@ import (
 	"github.com/AlekSi/pointer"
 	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/api_connection"
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/cloud"
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/httputil"
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/resources"
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/synthetics"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/internal/api_connection"
+	"github.com/kentik/community_sdk_golang/kentikapi/internal/cloud"
+	"github.com/kentik/community_sdk_golang/kentikapi/internal/httputil"
+	"github.com/kentik/community_sdk_golang/kentikapi/internal/resources"
 )
 
 //nolint:gosec
@@ -53,7 +53,6 @@ type Client struct {
 	Query              *resources.QueryAPI
 	SavedFilters       *resources.SavedFiltersAPI
 	Sites              *resources.SitesAPI
-	Synthetics         *synthetics.API
 	Tags               *resources.TagsAPI
 	Users              *resources.UsersAPI
 
@@ -135,8 +134,8 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 		Timeout: defaultTimeout,
 		RetryCfg: RetryConfig{
 			MaxAttempts: pointer.ToUint(defaultMaxAttempts),
-			MinDelay:    pointer.ToDuration(defaultMinDelay),
-			MaxDelay:    pointer.ToDuration(defaultMaxDelay),
+			MinDelay:    new(defaultMinDelay),
+			MaxDelay:    new(defaultMaxDelay),
 		},
 	}
 	for _, opt := range opts {
@@ -144,12 +143,12 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 	}
 	apiV5URL, err := makeAPIV5URL(c.APIURL)
 	if err != nil {
-		return nil, fmt.Errorf("make API v5 URL: %v", err)
+		return nil, fmt.Errorf("make API v5 URL: %w", err)
 	}
 
 	grpcConnection, err := makeConnForGRPC(c)
 	if err != nil {
-		return nil, fmt.Errorf("grpc connection: %v", err)
+		return nil, fmt.Errorf("grpc connection: %w", err)
 	}
 	rc := api_connection.NewRestClient(api_connection.RestClientConfig{
 		APIURL:    apiV5URL,
@@ -170,7 +169,6 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 		Query:              resources.NewQueryAPI(rc, c.LogPayloads),
 		SavedFilters:       resources.NewSavedFiltersAPI(rc, c.LogPayloads),
 		Sites:              resources.NewSitesAPI(rc, c.LogPayloads),
-		Synthetics:         synthetics.NewAPI(grpcConnection),
 		Tags:               resources.NewTagsAPI(rc, c.LogPayloads),
 		Users:              resources.NewUsersAPI(rc, c.LogPayloads),
 
@@ -192,7 +190,7 @@ func makeConnForGRPC(c config) (grpc.ClientConnInterface, error) {
 	if err != nil {
 		return nil, err
 	}
-	return grpc.Dial(
+	return grpc.NewClient(
 		grpcHostPort,
 		makeTLSOption(tlsEnabled),
 		grpc.WithUnaryInterceptor(
@@ -239,7 +237,7 @@ func makeTLSOption(tlsEnabled bool) grpc.DialOption {
 }
 
 func makeTimeoutInterceptor(c config) grpc.UnaryClientInterceptor {
-	return func(ctx context.Context, method string, req, reply interface{},
+	return func(ctx context.Context, method string, req, reply any,
 		cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
 	) error {
 		ctx, cancel := context.WithTimeout(ctx, c.Timeout)
@@ -249,7 +247,7 @@ func makeTimeoutInterceptor(c config) grpc.UnaryClientInterceptor {
 }
 
 func makeAuthInterceptor(c config) grpc.UnaryClientInterceptor {
-	return func(ctx context.Context, method string, req, reply interface{},
+	return func(ctx context.Context, method string, req, reply any,
 		cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
 	) error {
 		ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs(
@@ -275,7 +273,7 @@ func makeRetryInterceptor(c config) grpc.UnaryClientInterceptor {
 }
 
 func makeLoggerInterceptor(c config) grpc.UnaryClientInterceptor {
-	return func(ctx context.Context, method string, req, reply interface{},
+	return func(ctx context.Context, method string, req, reply any,
 		cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
 	) error {
 		if c.LogPayloads {

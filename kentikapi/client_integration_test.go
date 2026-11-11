@@ -2,30 +2,17 @@ package kentikapi_test
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	syntheticspb "github.com/kentik/api-schema-public/gen/go/kentik/synthetics/v202202"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/kentik/community_sdk_golang/kentikapi"
 	"github.com/kentik/community_sdk_golang/kentikapi/internal/testutil"
 	"github.com/kentik/community_sdk_golang/kentikapi/models"
-	"github.com/kentik/community_sdk_golang/kentikapi/synthetics"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
-)
-
-const (
-	warsawAgentID = "41910"
 )
 
 func TestClient_GetUserWithRetries(t *testing.T) {
@@ -85,7 +72,7 @@ func TestClient_GetUserWithRetries(t *testing.T) {
 				CreatedDate:  *testutil.ParseISO8601Timestamp(t, "2020-12-09T14:48:42.187Z"),
 				UpdatedDate:  *testutil.ParseISO8601Timestamp(t, "2020-12-09T14:48:43.243Z"),
 				CompanyID:    "74333",
-				UserAPIToken: pointer.ToString("****************************a997"),
+				UserAPIToken: new("****************************a997"),
 			},
 		}, {
 			name: "default timeout is longer than 30 ms",
@@ -204,7 +191,7 @@ func TestClient_CreateUserWithRetries(t *testing.T) {
 		options []kentikapi.ClientOption
 		user    models.User
 		// expectedRequestBody is a map for the granularity of assertion diff
-		expectedRequestBody map[string]interface{}
+		expectedRequestBody map[string]any
 		responses           []testutil.HTTPResponse
 		expectedResult      *models.User
 		expectedError       bool
@@ -335,245 +322,5 @@ func TestClient_CreateUserWithRetries(t *testing.T) {
 			}
 			assert.Equal(t, tt.expectedResult, result)
 		})
-	}
-}
-
-func TestClient_Synthetics_GetAgentWithRetries(t *testing.T) {
-	tests := []struct {
-		name            string
-		options         []kentikapi.ClientOption
-		responses       []gRPCGetAgentResponse
-		handlingDelay   time.Duration
-		expectedResult  *synthetics.Agent
-		expectedError   bool
-		errorPredicates []func(error) bool
-	}{
-		{
-			name: "retry 2 times till success on code Unavailable",
-			responses: []gRPCGetAgentResponse{
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				{
-					nil,
-					&syntheticspb.GetAgentResponse{Agent: newWarsawAgentPayload()},
-				},
-			},
-			expectedResult: newWarsawAgent(),
-			expectedError:  false,
-		}, {
-			name: "retry 4 times when code Unavailable received and last code is Unavailable",
-			responses: []gRPCGetAgentResponse{
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-			},
-			expectedResult:  nil,
-			expectedError:   true,
-			errorPredicates: []func(error) bool{kentikapi.IsTemporaryError},
-		}, {
-			name: "retry 4 times when code Unavailable received and last code is Unknown",
-			responses: []gRPCGetAgentResponse{
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unknown),
-			},
-			expectedResult: nil,
-			expectedError:  true,
-		}, {
-			name: "do not retry when code Unknown received",
-			responses: []gRPCGetAgentResponse{
-				newErrorGRPCGetAgentResponse(codes.Unknown),
-			},
-			expectedResult: nil,
-			expectedError:  true,
-		}, {
-			name:    "do not retry when retries disabled and code Unavailable received",
-			options: []kentikapi.ClientOption{kentikapi.WithRetryMaxAttempts(0)},
-			responses: []gRPCGetAgentResponse{
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-			},
-			expectedResult:  nil,
-			expectedError:   true,
-			errorPredicates: []func(error) bool{kentikapi.IsTemporaryError},
-		}, {
-			name:    "retry specified number of times when code Unavailable received",
-			options: []kentikapi.ClientOption{kentikapi.WithRetryMaxAttempts(2)},
-			responses: []gRPCGetAgentResponse{
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-				newErrorGRPCGetAgentResponse(codes.Unavailable),
-			},
-			expectedResult:  nil,
-			expectedError:   true,
-			errorPredicates: []func(error) bool{kentikapi.IsTemporaryError},
-		}, {
-			name:            "timeout during first request",
-			options:         []kentikapi.ClientOption{kentikapi.WithTimeout(5 * time.Millisecond)},
-			responses:       []gRPCGetAgentResponse{},
-			handlingDelay:   1 * time.Second,
-			expectedResult:  nil,
-			expectedError:   true,
-			errorPredicates: []func(error) bool{kentikapi.IsTimeoutError, kentikapi.IsTemporaryError},
-		}, {
-			name: "Unauthenticated error",
-			responses: []gRPCGetAgentResponse{
-				newErrorGRPCGetAgentResponse(codes.Unauthenticated),
-			},
-			expectedResult:  nil,
-			expectedError:   true,
-			errorPredicates: []func(error) bool{kentikapi.IsAuthError},
-		}, {
-			name: "ResourceExhausted error",
-			responses: []gRPCGetAgentResponse{
-				newErrorGRPCGetAgentResponse(codes.ResourceExhausted),
-				newErrorGRPCGetAgentResponse(codes.ResourceExhausted),
-				newErrorGRPCGetAgentResponse(codes.ResourceExhausted),
-				newErrorGRPCGetAgentResponse(codes.ResourceExhausted),
-				newErrorGRPCGetAgentResponse(codes.ResourceExhausted),
-			},
-			expectedResult:  nil,
-			expectedError:   true,
-			errorPredicates: []func(error) bool{kentikapi.IsRateLimitExhaustedError},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// arrange
-			server := newSpySyntheticsServerWithDelays(t, tt.responses, tt.handlingDelay)
-			server.Start()
-			defer server.Stop()
-
-			options := []kentikapi.ClientOption{
-				kentikapi.WithAPIURL("http://" + server.url),
-				kentikapi.WithCredentials(dummyAuthEmail, dummyAuthToken),
-				kentikapi.WithRetryMinDelay(10 * time.Microsecond),
-				kentikapi.WithLogPayloads(),
-			}
-			client, err := kentikapi.NewClient(append(options, tt.options...)...)
-			require.NoError(t, err)
-
-			// act
-			result, err := client.Synthetics.GetAgent(context.Background(), warsawAgentID)
-
-			// assert
-			t.Logf("Got result: %+v, err: %v", result, err)
-			if tt.expectedError {
-				assert.Error(t, err)
-				for _, isErr := range tt.errorPredicates {
-					assert.True(t, isErr(err))
-				}
-			} else {
-				assert.NoError(t, err)
-			}
-
-			assert.Equal(t, len(server.responses), len(server.requests), "invalid number of requests")
-			for _, r := range server.requests {
-				assert.Equal(t, dummyAuthEmail, r.metadata.Get(authEmailKey)[0])
-				assert.Equal(t, dummyAuthToken, r.metadata.Get(authAPITokenKey)[0])
-				assert.Equal(t, warsawAgentID, r.data.GetId())
-			}
-
-			assert.Equal(t, tt.expectedResult, result)
-		})
-	}
-}
-
-type spySyntheticsServerWithDelays struct {
-	syntheticspb.UnimplementedSyntheticsAdminServiceServer
-	server *grpc.Server
-
-	url  string
-	done chan struct{}
-	t    testing.TB
-	// responses to return to the client
-	responses []gRPCGetAgentResponse
-	// handlingDelay specifies the delay applied while handling the request
-	handlingDelay time.Duration
-
-	// requests spied by the server
-	requests []getAgentRequest
-}
-
-type gRPCGetAgentResponse struct {
-	err  error
-	body *syntheticspb.GetAgentResponse
-}
-
-func newSpySyntheticsServerWithDelays(
-	t testing.TB, responses []gRPCGetAgentResponse, handlingDelay time.Duration,
-) *spySyntheticsServerWithDelays {
-	return &spySyntheticsServerWithDelays{
-		done:          make(chan struct{}),
-		t:             t,
-		responses:     responses,
-		handlingDelay: handlingDelay,
-	}
-}
-
-func (s *spySyntheticsServerWithDelays) Start() {
-	l, err := net.Listen("tcp", "localhost:0")
-	require.NoError(s.t, err)
-
-	s.url = l.Addr().String()
-	s.server = grpc.NewServer()
-	syntheticspb.RegisterSyntheticsAdminServiceServer(s.server, s)
-
-	go func() {
-		err = s.server.Serve(l)
-		if !errors.Is(err, grpc.ErrServerStopped) {
-			assert.NoError(s.t, err)
-		}
-		s.done <- struct{}{}
-	}()
-}
-
-// Stop blocks until the server is stopped. Graceful stop is not used to make tests quicker.
-func (s *spySyntheticsServerWithDelays) Stop() {
-	s.server.Stop()
-	<-s.done
-}
-
-func (s *spySyntheticsServerWithDelays) GetAgent(
-	ctx context.Context, req *syntheticspb.GetAgentRequest,
-) (*syntheticspb.GetAgentResponse, error) {
-	time.Sleep(s.handlingDelay)
-
-	md, _ := metadata.FromIncomingContext(ctx)
-	s.requests = append(s.requests, getAgentRequest{
-		metadata: md,
-		data:     req,
-	})
-
-	response := s.response()
-	return response.body, response.err
-}
-
-func (s *spySyntheticsServerWithDelays) response() gRPCGetAgentResponse {
-	if len(s.requests) > len(s.responses) {
-		return gRPCGetAgentResponse{
-			status.Errorf(
-				codes.Unknown,
-				"spySyntheticsServerWithDelays: unexpected request, requests count: %v, expected: %v",
-				len(s.requests),
-				len(s.responses),
-			),
-			nil,
-		}
-	}
-	return s.responses[len(s.requests)-1]
-}
-
-func newErrorGRPCGetAgentResponse(c codes.Code) gRPCGetAgentResponse {
-	return gRPCGetAgentResponse{
-		err: status.Errorf(
-			c,
-			c.String(),
-		),
-		body: nil,
 	}
 }

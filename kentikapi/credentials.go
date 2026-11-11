@@ -3,7 +3,7 @@ package kentikapi
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -50,7 +50,7 @@ func readCredentialsFromProfile(profileName string) (authEmail, authToken string
 	if err != nil {
 		return "", "", err
 	}
-	byteValue, err := ioutil.ReadAll(jsonFile)
+	byteValue, err := io.ReadAll(jsonFile)
 	if err != nil {
 		return "", "", err
 	}

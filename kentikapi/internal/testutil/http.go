@@ -2,7 +2,7 @@ package testutil
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -43,7 +43,7 @@ func (h *SpyHTTPHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	h.LastURL = r.URL
 	h.LastHeader = r.Header
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	assert.NoError(h.t, err)
 	h.LastRequestBody = string(body)
 
@@ -82,7 +82,7 @@ func (h *MultipleResponseSpyHTTPHandler) ServeHTTP(rw http.ResponseWriter, r *ht
 		h.t.Log("MultipleResponseSpyHTTPHandler: omitting HTTP/2 connection preface (PRI)")
 		return
 	}
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	assert.NoError(h.t, err)
 
 	err = r.Body.Close()

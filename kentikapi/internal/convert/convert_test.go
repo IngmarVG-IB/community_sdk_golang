@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/convert"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/internal/convert"
 )
 
 func TestMillisecondsToDuration(t *testing.T) {

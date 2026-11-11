@@ -92,22 +92,22 @@ type Export struct {
 }
 
 func (ce *Export) GetAWSProperties() *AWSProperties {
-	p, _ := ce.Properties.(*AWSProperties) //nolint:errcheck // user can check the pointer
+	p, _ := ce.Properties.(*AWSProperties)
 	return p
 }
 
 func (ce *Export) GetAzureProperties() *AzureProperties {
-	p, _ := ce.Properties.(*AzureProperties) //nolint:errcheck // user can check the pointer
+	p, _ := ce.Properties.(*AzureProperties)
 	return p
 }
 
 func (ce *Export) GetGCEProperties() *GCEProperties {
-	p, _ := ce.Properties.(*GCEProperties) //nolint:errcheck // user can check the pointer
+	p, _ := ce.Properties.(*GCEProperties)
 	return p
 }
 
 func (ce *Export) GetIBMProperties() *IBMProperties {
-	p, _ := ce.Properties.(*IBMProperties) //nolint:errcheck // user can check the pointer
+	p, _ := ce.Properties.(*IBMProperties)
 	return p
 }
 

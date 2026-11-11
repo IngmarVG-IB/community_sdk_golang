@@ -10,8 +10,9 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/kentik/community_sdk_golang/kentikapi/cloud"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/cloud"
 )
 
 func TestDemonstrateCloudAPIWithAWSExport(t *testing.T) {

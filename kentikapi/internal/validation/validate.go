@@ -14,14 +14,14 @@ const (
 )
 
 // CheckRequestRequiredFields checks if resource's required fields are not nil.
-// Eg. for method=post, it returns error if any of resource's fields marked as `request:"post"`` are set to nil.
+// Eg. for method=post, it returns error if any of resource's fields marked as `request:"post"“ are set to nil.
 func CheckRequestRequiredFields(method string, resource interface{}) error {
 	lowercaseMethod := strings.ToLower(method)
 	return validateWrapper(lowercaseMethod, DirectionRequest, resource)
 }
 
 // CheckResponseRequiredFields checks if resource's required fields are not nil.
-// Eg. for method=get, it returns error if any of resource's fields marked as `response:"get"`` are set to nil.
+// Eg. for method=get, it returns error if any of resource's fields marked as `response:"get"“ are set to nil.
 func CheckResponseRequiredFields(method string, resource interface{}) error {
 	lowercaseMethod := strings.ToLower(method)
 	return validateWrapper(lowercaseMethod, DirectionResponse, resource)
@@ -38,7 +38,7 @@ func validateWrapper(method string, direction Direction, resource interface{}) e
 
 func getTypeName(i interface{}) string {
 	tResource := reflect.TypeOf(i)
-	if tResource.Kind() == reflect.Ptr {
+	if tResource.Kind() == reflect.Pointer {
 		return "*" + tResource.Elem().Name()
 	}
 	return tResource.Name()
@@ -53,7 +53,7 @@ func validate(method string, direction string, path string, v reflect.Value) []s
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Field(i)
 			fieldPath := path + "." + v.Type().Field(i).Name
-			if (field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface || field.Kind() == reflect.Slice) &&
+			if (field.Kind() == reflect.Pointer || field.Kind() == reflect.Interface || field.Kind() == reflect.Slice) &&
 				field.IsNil() {
 				requiredForMethods := v.Type().Field(i).Tag.Get(direction)
 				if strings.Contains(requiredForMethods, method) {
@@ -73,7 +73,7 @@ func validate(method string, direction string, path string, v reflect.Value) []s
 			missing = append(missing, validate(method, direction, fieldPath, item)...)
 		}
 
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 		// pointer and interface can hold a struct, so - validate
 		// path = path + "." + v.Name
 		missing = append(missing, validate(method, direction, path, v.Elem())...)

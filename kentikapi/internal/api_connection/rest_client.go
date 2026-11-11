@@ -5,16 +5,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
+
 	kentikerrors "github.com/kentik/community_sdk_golang/kentikapi/internal/errors"
 	"github.com/kentik/community_sdk_golang/kentikapi/internal/httputil"
 )
 
-//nolint:gosec
 const (
 	authEmailKey    = "X-CH-Auth-Email"
 	authAPITokenKey = "X-CH-Auth-API-Token"
@@ -45,6 +45,7 @@ func NewRestClient(c RestClientConfig) *RestClient {
 }
 
 // Get sends GET request to the API and returns raw response body.
+//
 //nolint:dupl
 func (c *RestClient) Get(ctx context.Context, path string) (responseBody json.RawMessage, err error) {
 	ctx, cancel := context.WithTimeout(ctx, *c.config.Timeout)
@@ -67,7 +68,7 @@ func (c *RestClient) Get(ctx context.Context, path string) (responseBody json.Ra
 		}
 	}()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("read response body: %v", err)
 	}
@@ -76,6 +77,7 @@ func (c *RestClient) Get(ctx context.Context, path string) (responseBody json.Ra
 }
 
 // Post sends POST request to the API and returns raw response body
+//
 //nolint:dupl
 func (c *RestClient) Post(
 	ctx context.Context, path string, payload json.RawMessage,
@@ -99,7 +101,7 @@ func (c *RestClient) Post(
 		}
 	}()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("read response body: %v", err)
 	}
@@ -108,6 +110,7 @@ func (c *RestClient) Post(
 }
 
 // Put sends PUT request to the API and returns raw response body
+//
 //nolint:dupl
 func (c *RestClient) Put(
 	ctx context.Context, path string, payload json.RawMessage,
@@ -131,7 +134,7 @@ func (c *RestClient) Put(
 		}
 	}()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("read response body: %v", err)
 	}
@@ -140,6 +143,7 @@ func (c *RestClient) Put(
 }
 
 // Delete sends DELETE request to the API and returns raw response body.
+//
 //nolint:dupl
 func (c *RestClient) Delete(ctx context.Context, path string) (responseBody json.RawMessage, err error) {
 	ctx, cancel := context.WithTimeout(ctx, *c.config.Timeout)
@@ -162,7 +166,7 @@ func (c *RestClient) Delete(ctx context.Context, path string) (responseBody json
 		}
 	}()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("read response body: %v", err)
 	}

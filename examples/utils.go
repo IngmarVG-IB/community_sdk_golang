@@ -66,7 +66,7 @@ func prettyPrintRecursively(t reflect.Type, v reflect.Value, level int) {
 			prettyPrintRecursively(s.Type(), s, level+1)
 		}
 
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 		if v.IsNil() {
 			prettyPrintIndented("[empty]\n", level)
 		} else {
@@ -78,7 +78,7 @@ func prettyPrintRecursively(t reflect.Type, v reflect.Value, level int) {
 	}
 }
 
-//nolint:gomnd
+//nolint:mnd
 func prettyPrintIndented(format string, level int, args ...interface{}) {
 	fmt.Printf("%*s", level*2, "")
 	fmt.Printf(format, args...)

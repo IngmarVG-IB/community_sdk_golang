@@ -8,13 +8,13 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/kentik/community_sdk_golang/kentikapi"
 	"github.com/kentik/community_sdk_golang/kentikapi/internal/testutil"
 	"github.com/kentik/community_sdk_golang/kentikapi/models"
-	"github.com/stretchr/testify/assert"
 )
 
-//nolint:gosec
 const (
 	authEmailKey    = "X-CH-Auth-Email"
 	authAPITokenKey = "X-CH-Auth-API-Token"
@@ -378,7 +378,7 @@ func TestClient_CreateUser(t *testing.T) {
 			expectedError:       true,
 		},
 	}
-	// nolint: dupl
+	//nolint: dupl
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// arrange

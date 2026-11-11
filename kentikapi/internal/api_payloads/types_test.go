@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/api_payloads"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/internal/api_payloads"
 )
 
 func TestBoolAsString_UnmarshalJSON(t *testing.T) {

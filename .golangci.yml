@@ -1,131 +1,52 @@
-# Configuration reference: https://golangci-lint.run/usage/configuration/
-# Linters reference: https://golangci-lint.run/usage/linters/
+# golangci-lint v2 configuration. Reference: https://golangci-lint.run/usage/configuration/
+version: "2"
+
 run:
   build-tags:
     - examples
-  skip-dirs-use-default: false
 
-issues:
-  max-issues-per-linter: 0
-  max-same-issues: 0
-  exclude:
-    # TODO: These errors should be enabled
-    - don't use an underscore in package name
-    - should not use underscores in package names
-    # EXC0002 golint: Annoying issue about not having a comment. The rare codebase has such comments
-    - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
-  exclude-use-default: false
-  exclude-rules: # exclude linters impossible to exclude via //nolint
-    - path: ^kentikapi/models/enum_ # these files are generated and shouldn't be edited with //nolint
-      linters:
-        - gochecknoglobals
-        - lll
-        - gomnd
-
-# Disabled linters:
-# - cyclop - duplicates functionality of gocyclo
-# - exhaustivestruct - breaks "Make the zero value useful" proverb, meant to be used only for special cases
-# - funlen - not needed - gocyclo ensures that functions complexity is not too high
-# - godox - requires all TODOs to be removed - too strict
-# - golint - deprecated (since v1.41.0) due to: The repository of the linter has been archived by the owner
-# - gomoddirectives - does not allow "replace" directives - too strict
-# - goerr113 - following check is too strict: "do not define dynamic errors, use wrapped static errors instead",
-#              the check cannot be disabled
-# - interfacer - deprecated (since v1.38.0) due to: The repository of the linter has been archived by the owner
-# - maligned - deprecated (since v1.38.0) due to: The repository of the linter has been archived by the owner
-# - nlreturn - leads to using too many line breaks
-# - paralleltest - premature optimization
-# - prealloc - considered a premature optimization.
-# - scopelint - deprecated (since v1.39.0) due to: The repository of the linter has been deprecated by the owner
-# - thelper - enforcing t.Helper() everywhere is too strict
-# - wrapcheck - valuable linter, TODO: ignore false-positives (interfaces, internal imports) and adjust the code to comply
-# - wsl - leads to using too many line breaks
 linters:
+  default: standard # errcheck, govet, ineffassign, staticcheck, unused
   enable:
-    - asciicheck
     - bodyclose
-    - deadcode
-    - depguard
-    - dogsled
-    - dupl
+    - copyloopvar
     - durationcheck
-    - errcheck
     - errorlint
-    - exhaustive
-    - exportloopref
-    - forbidigo
-    - forcetypeassert
-    - gci
-    - gochecknoglobals
-    - gochecknoinits
-    - gocognit
-    - goconst
-    - gocritic
-    - gocyclo
-    - godot
-    - gofmt
-    - gofumpt
-    - goheader
-    - goimports
-    - gomnd
-    - gomodguard
-    - goprintffuncname
     - gosec
-    - gosimple
-    - govet
-    - ifshort
-    - importas
-    - ineffassign
-    - lll
-    - makezero
     - misspell
-    - nakedret
-    - nestif
     - nilerr
-    - noctx
     - nolintlint
-    - predeclared
-    - revive
-    - rowserrcheck
-    - sqlclosecheck
-    - staticcheck
-    - structcheck
-    - stylecheck
-    - testpackage
-    - tparallel
-    - typecheck
     - unconvert
-    - unparam
-    - unused
-    - varcheck
-    - wastedassign
-    - whitespace
+    - usestdlibvars
+  settings:
+    gosec:
+      excludes:
+        - G115 # integer overflow conversion: noisy for generated proto int types
+  exclusions:
+    generated: strict
+    presets:
+      - comments
+      - std-error-handling
+    rules:
+      # Legacy v5 REST code is frozen (deprecated); keep lint noise out of it.
+      - path: ^kentikapi/(internal/(api_connection|api_endpoints|api_payloads|resources|utils|convert|httputil|testutil|validation)|models)/
+        linters: [staticcheck, gosec, errorlint]
+      # Legacy cloud_export v202101beta1 layer: the proto marks fields deprecated; the layer is itself deprecated.
+      - path: ^kentikapi/(internal/cloud/|cloud_exports_integration_test\.go)
+        linters: [staticcheck]
+        text: SA1019
+      # Developer tools read paths given on the command line by the developer.
+      - path: ^internal/cmd/
+        linters: [gosec]
+        text: "G(304|703)"
+      - path: _test\.go
+        linters: [gosec, bodyclose]
 
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-  errorlint:
-    # Check whether fmt.Errorf uses the %w verb for formatting errors - too strict
-    errorf: false
-  exhaustive:
-    # presence of "default" case in switch statements satisfies exhaustiveness,
-    # even if all enum members are not listed
-    default-signifies-exhaustive: true
-  gocyclo:
-    min-complexity: 10
-  gomnd:
-    settings:
-      mnd:
-        # 10 is usually obvious, e.g. strconv.FormatInt(n, 10)
-        ignored-numbers: "10"
-  govet:
-    disable:
-      # Reordering struct fields may decrease readability
-      - fieldalignment
-    enable-all: true
-  lll:
-    # TODO: 120 (default) should be achieved to increase comfort of window split view
-    line-length: 127
-  nakedret:
-    max-func-lines: 5
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/kentik/community_sdk_golang

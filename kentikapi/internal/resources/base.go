@@ -47,7 +47,8 @@ func (b BaseAPI) GetAndValidate(ctx context.Context, path string, output interfa
 // PostAndValidate validates input against required fields defined in struct tags of "input",
 // retrieves JSON at "path", unmarshalls and validates against required fields in "output"
 // Output must be pointer to object or nil.
-//nolint: dupl
+//
+//nolint:dupl
 func (b BaseAPI) PostAndValidate(ctx context.Context, path string, input interface{}, output interface{}) error {
 	if err := validation.CheckRequestRequiredFields("post", input); err != nil {
 		return err
@@ -82,7 +83,8 @@ func (b BaseAPI) PostAndValidate(ctx context.Context, path string, input interfa
 // UpdateAndValidate validates input against required fields defined in struct tags of "input",
 // retrieves JSON at "path", unmarshalls and validates against required fields in "output"
 // Output must be pointer to object or nil.
-//nolint: dupl
+//
+//nolint:dupl
 func (b BaseAPI) UpdateAndValidate(ctx context.Context, path string, input interface{}, output interface{}) error {
 	if err := validation.CheckRequestRequiredFields("put", input); err != nil {
 		return err

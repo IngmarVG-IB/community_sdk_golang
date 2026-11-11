@@ -13,8 +13,9 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/kentik/community_sdk_golang/kentikapi/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kentik/community_sdk_golang/kentikapi/models"
 )
 
 func TestQueryAPIExample(t *testing.T) {
@@ -74,7 +75,6 @@ func runQueryData() error {
 	return nil
 }
 
-//nolint:gosec // G204: Subprocess launched with variable - not an issue in this case
 func runQueryChart() error {
 	client, err := NewClient()
 	if err != nil {
