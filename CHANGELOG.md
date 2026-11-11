@@ -28,7 +28,7 @@ replaced the openapi-generator v6 clients with gRPC.
   `internal/cmd/gen` (`make generate`, ADR 0005): `Client.SyntheticsV202309()`, `Client.CloudExportV202506()`,
   `Client.AlertingPublicV202505()`, ... and unversioned aliases for the newest complete stable version
   (`Client.Synthetics()`, `Client.CloudExport()`, `Client.User()`, ...). 22 APIs, 25 stable versions.
-- `kentikapi/experimental`: accessors for 19 alpha/beta versions with no stable equivalent.
+- `kentikapi/experimental`: accessors for 18 alpha/beta versions with no stable equivalent.
 - `kentikapi.Services()` / `LookupMethod()` registry (HTTP mapping, streaming, idempotency, pagination);
   retries use it to decide which RPCs are read-only.
 - `kentik-api.json` is now generated, and CI fails on generated-code drift.
