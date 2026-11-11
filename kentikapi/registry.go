@@ -24,8 +24,13 @@ type ServiceInfo struct {
 	FullName string
 	// GoPackage is the import path of the generated Go code.
 	GoPackage string
-	// DefaultHost is the google.api.default_host option, if set.
+	// DefaultHost is the google.api.default_host option, if set. The SDK sends every service to the
+	// configured endpoint regardless.
 	DefaultHost string
+	// Accessor is the SDK accessor for the service, e.g. "Client.SyntheticsV202309().Admin" or
+	// "experimental.Client.DeviceV202504Beta2()". It is empty for superseded pre-release versions, which
+	// are reachable only through Client.Conn and the generated client.
+	Accessor string
 	// Methods lists the RPCs.
 	Methods []MethodInfo
 }
@@ -40,8 +45,12 @@ type MethodInfo struct {
 	HTTPMethod, HTTPPath string
 	// ClientStreaming and ServerStreaming mark streaming RPCs.
 	ClientStreaming, ServerStreaming bool
-	// Idempotent is true when the RPC is safe to retry (GET mapping or idempotency_level set).
+	// Idempotent is true when the RPC is read-only and safe to retry (see [IsIdempotent]).
 	Idempotent bool
+	// Pagination is the paging style of the request: "" (none), "pagination_config" (a
+	// kentik.alerting.types PaginationConfig field) or "offset_limit" (top-level offset and limit).
+	// See [Paginate].
+	Pagination string
 }
 
 // Services returns metadata for every service in the pinned api-schema-public version, stable and

@@ -35,7 +35,7 @@ type RetryPolicy struct {
 	Codes []codes.Code
 	// Retryable decides whether a method may be retried at all. fullMethod has the form
 	// "/kentik.synthetics.v202309.SyntheticsAdminService/ListTests". The default, [IsIdempotent], allows
-	// only RPCs that are safe to repeat (HTTP GET mapping or idempotency_level set in the proto).
+	// only read-only RPCs (see there).
 	// Return true for everything to also retry mutating RPCs.
 	Retryable func(fullMethod string) bool
 }
@@ -119,9 +119,10 @@ func serverRetryDelay(err error, trailer metadata.MD) (time.Duration, bool) {
 	return 0, false
 }
 
-// IsIdempotent reports whether fullMethod is safe to retry: its google.api.http mapping is a GET, or the
-// proto sets idempotency_level. Methods unknown to the SDK's registry fall back to a name heuristic
-// (Get*, List*, Search*, Query*, Fetch* are treated as read-only).
+// IsIdempotent reports whether fullMethod is safe to retry. For methods in the SDK's registry that is the
+// case when the google.api.http mapping is a GET, the proto sets idempotency_level, or the RPC name starts
+// with Get or List (Kentik maps several read-only RPCs to POST); client-streaming RPCs never are. Methods
+// unknown to the registry fall back to the name heuristic (Get*, List*, Search*, Query*, Fetch*).
 func IsIdempotent(fullMethod string) bool {
 	if m, ok := LookupMethod(fullMethod); ok {
 		return m.Idempotent

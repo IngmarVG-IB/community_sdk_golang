@@ -5,14 +5,586 @@
   },
   "services": [
     {
+      "service": "ai_advisor",
+      "version": "v202511",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.AIAdvisorV202511",
+        "kentikapi.Client.AIAdvisor",
+        "kentik.ai_advisor.v202511.AiAdvisorDataService"
+      ]
+    },
+    {
+      "service": "alerting/public",
+      "version": "v202505",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.AlertingPublicV202505",
+        "kentikapi.Client.AlertingPublic",
+        "kentik.alerting.public.v202505.AlertAutoAckService",
+        "kentik.alerting.public.v202505.AlertService",
+        "kentik.alerting.public.v202505.AlertSilenceNotificationsService",
+        "kentik.alerting.public.v202505.MitigationMethodsService",
+        "kentik.alerting.public.v202505.MitigationPlatformsService",
+        "kentik.alerting.public.v202505.MitigationsService",
+        "kentik.alerting.public.v202505.PolicyService",
+        "kentik.alerting.public.v202505.SuppressionService",
+        "paginated (kentikapi.Paginate): AlertAutoAckService.List, AlertService.List, AlertSilenceNotificationsService.List, MitigationMethodsService.List, MitigationPlatformsService.List, MitigationsService.List, PolicyService.List, SuppressionService.List"
+      ]
+    },
+    {
+      "service": "alerting/public",
+      "version": "v202611",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.AlertingPublicV202611",
+        "kentik.alerting.public.v202611.SuppressionService",
+        "paginated (kentikapi.Paginate): SuppressionService.List"
+      ]
+    },
+    {
+      "service": "as_group",
+      "version": "v202212",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.ASGroupV202212",
+        "kentikapi.Client.ASGroup",
+        "kentik.as_group.v202212.ASGroupService"
+      ]
+    },
+    {
+      "service": "asset_tags",
+      "version": "v20260515beta1",
+      "stability": "beta",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.AssetTagsV20260515Beta1",
+        "kentik.asset_tags.v20260515beta1.AssetTagsService"
+      ]
+    },
+    {
+      "service": "audit/public",
+      "version": "v202601",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.AuditPublicV202601",
+        "kentikapi.Client.AuditPublic",
+        "kentik.audit.public.v202601.AuditService",
+        "paginated (kentikapi.Paginate): AuditService.ListAuditEvents"
+      ]
+    },
+    {
+      "service": "bgp_monitoring",
+      "version": "v202205beta1",
+      "stability": "beta",
+      "status": "deprecated",
+      "surface": [
+        "kentikapi.Client.Conn (superseded; no accessor)",
+        "kentik.bgp_monitoring.v202205beta1.BgpMonitoringAdminService",
+        "kentik.bgp_monitoring.v202205beta1.BgpMonitoringDataService"
+      ]
+    },
+    {
+      "service": "bgp_monitoring",
+      "version": "v202210",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.BGPMonitoringV202210",
+        "kentikapi.Client.BGPMonitoring",
+        "kentik.bgp_monitoring.v202210.BgpMonitoringAdminService",
+        "kentik.bgp_monitoring.v202210.BgpMonitoringDataService"
+      ]
+    },
+    {
+      "service": "capacity_plan",
+      "version": "v202212",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.CapacityPlanV202212",
+        "kentikapi.Client.CapacityPlan",
+        "kentik.capacity_plan.v202212.CapacityPlanService"
+      ]
+    },
+    {
       "service": "cloud_export",
       "version": "v202101beta1",
       "stability": "beta",
       "status": "deprecated",
-      "surface": ["kentikapi.Client.Cloud", "kentikapi/cloud"]
+      "surface": [
+        "kentikapi.Client.Conn (superseded; no accessor)",
+        "kentikapi.Client.Cloud (deprecated hand-written wrapper)",
+        "kentikapi/cloud",
+        "kentik.cloud_export.v202101beta1.CloudExportAdminService"
+      ]
+    },
+    {
+      "service": "cloud_export",
+      "version": "v202210",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.CloudExportV202210",
+        "kentik.cloud_export.v202210.CloudExportAdminService"
+      ]
+    },
+    {
+      "service": "cloud_export",
+      "version": "v202506",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.CloudExportV202506",
+        "kentikapi.Client.CloudExport",
+        "kentik.cloud_export.v202506.CloudExportAdminService"
+      ]
+    },
+    {
+      "service": "connectivity_checker",
+      "version": "v202410beta1",
+      "stability": "beta",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.ConnectivityCheckerV202410Beta1",
+        "kentik.connectivity_checker.v202410beta1.ConnectivityCheckerAdminService"
+      ]
+    },
+    {
+      "service": "cost",
+      "version": "v202308",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.CostV202308",
+        "kentikapi.Client.Cost",
+        "kentik.cost.v202308.CostService"
+      ]
+    },
+    {
+      "service": "credential",
+      "version": "v202407alpha1",
+      "stability": "alpha",
+      "status": "deprecated",
+      "surface": [
+        "kentikapi.Client.Conn (superseded; no accessor)",
+        "kentik.credential.v202407alpha1.CredentialService"
+      ]
+    },
+    {
+      "service": "credential",
+      "version": "v20261020alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.CredentialV20261020Alpha1",
+        "kentik.credential.v20261020alpha1.CredentialService"
+      ]
+    },
+    {
+      "service": "custom_application",
+      "version": "v202501alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.CustomApplicationV202501Alpha1",
+        "kentik.custom_application.v202501alpha1.CustomApplicationService"
+      ]
+    },
+    {
+      "service": "custom_dimension",
+      "version": "v202411alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.CustomDimensionV202411Alpha1",
+        "kentik.custom_dimension.v202411alpha1.CustomDimensionService",
+        "paginated (kentikapi.Paginate): CustomDimensionService.GetPopulatorField"
+      ]
+    },
+    {
+      "service": "device",
+      "version": "v202308beta1",
+      "stability": "beta",
+      "status": "deprecated",
+      "surface": [
+        "kentikapi.Client.Conn (superseded; no accessor)",
+        "kentik.device.v202308beta1.DeviceService"
+      ]
+    },
+    {
+      "service": "device",
+      "version": "v202504beta2",
+      "stability": "beta",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.DeviceV202504Beta2",
+        "kentik.device.v202504beta2.DeviceService"
+      ]
+    },
+    {
+      "service": "deviceconf",
+      "version": "v202511",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.DeviceConfV202511",
+        "kentikapi.Client.DeviceConf",
+        "kentik.deviceconf.v202511.DeviceConfigurationService"
+      ]
+    },
+    {
+      "service": "diagnostic",
+      "version": "v202501",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.DiagnosticV202501",
+        "kentikapi.Client.Diagnostic",
+        "kentik.diagnostic.v202501.DiagnosticService"
+      ]
+    },
+    {
+      "service": "dictionary",
+      "version": "v20260604alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.DictionaryV20260604Alpha1",
+        "kentik.dictionary.v20260604alpha1.DictionaryService"
+      ]
+    },
+    {
+      "service": "enrichments/enumerations",
+      "version": "v202601alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.EnrichmentsEnumerationsV202601Alpha1",
+        "kentik.enrichments.enumerations.v202601alpha1.EnumerationsAdminService"
+      ]
+    },
+    {
+      "service": "flow_tag",
+      "version": "v202404alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.FlowTagV202404Alpha1",
+        "kentik.flow_tag.v202404alpha1.FlowTagService"
+      ]
+    },
+    {
+      "service": "interface",
+      "version": "v202108alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.InterfaceV202108Alpha1",
+        "kentik.interface.v202108alpha1.InterfaceService"
+      ]
+    },
+    {
+      "service": "journeys",
+      "version": "v202405alpha1",
+      "stability": "alpha",
+      "status": "deprecated",
+      "surface": [
+        "kentikapi.Client.Conn (superseded; no accessor)",
+        "kentik.journeys.v202405alpha1.JourneysDataService"
+      ]
+    },
+    {
+      "service": "journeys",
+      "version": "v202406",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.JourneysV202406",
+        "kentikapi.Client.Journeys",
+        "kentik.journeys.v202406.JourneysDataService"
+      ]
+    },
+    {
+      "service": "kagent",
+      "version": "v202401",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.KagentV202401",
+        "kentikapi.Client.Kagent",
+        "kentik.kagent.v202401.AgentCapabilityService",
+        "kentik.kagent.v202401.AgentService",
+        "kentik.kagent.v202401.CapabilityAdminService",
+        "kentik.kagent.v202401.CapabilityReleaseService",
+        "kentik.kagent.v202401.ConfigService",
+        "kentik.kagent.v202401.ProvisioningTokenService"
+      ]
+    },
+    {
+      "service": "kmeta",
+      "version": "v202607alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.KmetaV202607Alpha1",
+        "kentik.kmeta.v202607alpha1.KmetaService"
+      ]
+    },
+    {
+      "service": "kmi",
+      "version": "v202212",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.KMIV202212",
+        "kentikapi.Client.KMI",
+        "kentik.kmi.v202212.KmiService"
+      ]
+    },
+    {
+      "service": "kptr",
+      "version": "v202602",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.KPTRV202602",
+        "kentikapi.Client.KPTR",
+        "kentik.kptr.v202602.KptrService"
+      ]
+    },
+    {
+      "service": "ktbgp",
+      "version": "v202501",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.KTBGPV202501",
+        "kentikapi.Client.KTBGP",
+        "kentik.ktbgp.v202501.RouteService"
+      ]
+    },
+    {
+      "service": "label",
+      "version": "v202203alpha1",
+      "stability": "alpha",
+      "status": "deprecated",
+      "surface": [
+        "kentikapi.Client.Conn (superseded; no accessor)",
+        "kentik.label.v202203alpha1.LabelService"
+      ]
+    },
+    {
+      "service": "label",
+      "version": "v202210",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.LabelV202210",
+        "kentikapi.Client.Label",
+        "kentik.label.v202210.LabelService"
+      ]
+    },
+    {
+      "service": "mkp",
+      "version": "v202102alpha1",
+      "stability": "alpha",
+      "status": "deprecated",
+      "surface": [
+        "kentikapi.Client.Conn (superseded; no accessor)",
+        "kentik.mkp.v202102alpha1.PackageService",
+        "kentik.mkp.v202102alpha1.TenantService"
+      ]
+    },
+    {
+      "service": "mkp",
+      "version": "v202407",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.MKPV202407",
+        "kentikapi.Client.MKP",
+        "kentik.mkp.v202407.PackageService",
+        "kentik.mkp.v202407.TenantService",
+        "kentik.mkp.v202407.TenantUserService"
+      ]
+    },
+    {
+      "service": "network_class",
+      "version": "v202109alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.NetworkClassV202109Alpha1",
+        "kentik.network_class.v202109alpha1.NetworkClassService"
+      ]
+    },
+    {
+      "service": "nms",
+      "version": "v202505",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.NMSV202505",
+        "kentikapi.Client.NMS",
+        "kentik.nms.v202505.MetricsSchemaService"
+      ]
+    },
+    {
+      "service": "notification_channel",
+      "version": "v202204alpha1",
+      "stability": "alpha",
+      "status": "deprecated",
+      "surface": [
+        "kentikapi.Client.Conn (superseded; no accessor)",
+        "kentik.notification_channel.v202204alpha1.NotificationChannelService"
+      ]
+    },
+    {
+      "service": "notification_channel",
+      "version": "v202210",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.NotificationChannelV202210",
+        "kentikapi.Client.NotificationChannel",
+        "kentik.notification_channel.v202210.NotificationChannelService"
+      ]
+    },
+    {
+      "service": "pathfinder",
+      "version": "v202505beta1",
+      "stability": "beta",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.PathfinderV202505Beta1",
+        "kentik.pathfinder.v202505beta1.PathfinderAdminService"
+      ]
+    },
+    {
+      "service": "plan",
+      "version": "v202501alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.PlanV202501Alpha1",
+        "kentik.plan.v202501alpha1.PlanService"
+      ]
+    },
+    {
+      "service": "rbux",
+      "version": "v202607alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.RbuxV202607Alpha1",
+        "kentik.rbux.v202607alpha1.ScopeService"
+      ]
+    },
+    {
+      "service": "saved_filter",
+      "version": "v202501alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.SavedFilterV202501Alpha1",
+        "kentik.saved_filter.v202501alpha1.SavedFilterService"
+      ]
+    },
+    {
+      "service": "site",
+      "version": "v202106alpha1",
+      "stability": "alpha",
+      "status": "deprecated",
+      "surface": [
+        "kentikapi.Client.Conn (superseded; no accessor)",
+        "kentik.site.v202106alpha1.SiteService"
+      ]
+    },
+    {
+      "service": "site",
+      "version": "v202211",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.SiteV202211",
+        "kentik.site.v202211.SiteService"
+      ]
+    },
+    {
+      "service": "site",
+      "version": "v202509",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.SiteV202509",
+        "kentikapi.Client.Site",
+        "kentik.site.v202509.SiteService"
+      ]
+    },
+    {
+      "service": "synthetics",
+      "version": "v202309",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.SyntheticsV202309",
+        "kentikapi.Client.Synthetics",
+        "kentik.synthetics.v202309.SyntheticsAdminService",
+        "kentik.synthetics.v202309.SyntheticsDataService"
+      ]
+    },
+    {
+      "service": "synthetics",
+      "version": "v20261005alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.SyntheticsV20261005Alpha1",
+        "kentik.synthetics.v20261005alpha1.SyntheticsBulkActionService"
+      ]
+    },
+    {
+      "service": "user",
+      "version": "v202106alpha1",
+      "stability": "alpha",
+      "status": "deprecated",
+      "surface": [
+        "kentikapi.Client.Conn (superseded; no accessor)",
+        "kentik.user.v202106alpha1.UserService"
+      ]
+    },
+    {
+      "service": "user",
+      "version": "v202211",
+      "stability": "stable",
+      "status": "supported",
+      "surface": [
+        "kentikapi.Client.UserV202211",
+        "kentikapi.Client.User",
+        "kentik.user.v202211.UserService"
+      ]
+    },
+    {
+      "service": "vault",
+      "version": "v202312alpha1",
+      "stability": "alpha",
+      "status": "experimental",
+      "surface": [
+        "kentikapi/experimental.Client.VaultV202312Alpha1",
+        "kentik.vault.v202312alpha1.VaultService"
+      ]
     }
   ],
   "legacy": [
-    {"api": "v5", "status": "deprecated"}
+    {
+      "api": "v5",
+      "status": "deprecated"
+    }
   ]
 }

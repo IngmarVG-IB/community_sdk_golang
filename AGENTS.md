@@ -16,7 +16,10 @@ Go clients generated there. The legacy v5 REST API is still wrapped (deprecated,
 | `kentikapi/models/`, `kentikapi/internal/{api_*,resources,...}` | Legacy v5 REST layer. Deprecated, do not extend. |
 | `kentikapi/cloud/`, `kentikapi/internal/cloud/` | Legacy cloud_export v202101beta1 wrapper. Deprecated. |
 | `examples/legacy/` | v5 and v202101beta1 usage examples (build tag `examples`). They call the live API, so CI only compiles them. |
-| `internal/cmd/manifestcheck/` | Validator for `kentik-api.json`. |
+| `kentikapi/zz_accessors.go`, `kentikapi/zz_registry.go` | Generated: typed accessors for every stable service version, aliases, and the method registry. Do not edit. |
+| `kentikapi/experimental/` | Generated accessors for alpha/beta versions without a stable equivalent. |
+| `internal/cmd/gen/` | The generator (reads `proto/kentik/**` of the pinned api-schema-public from the module cache). |
+| `internal/cmd/manifestcheck/` | Validator for `kentik-api.json` (which is generated). |
 | `docs/adr/` | Architecture decision records (0004: v6 on api-schema-public gRPC). |
 | `kentik-api.json` | Machine-readable coverage manifest. |
 
@@ -39,9 +42,17 @@ All commands work offline once the module cache is warm.
 
 ## Adding a new API service or version
 
-See the "Service coverage" section once the accessor generator lands; until then: bump
-`github.com/kentik/api-schema-public` in `go.mod` (`go get github.com/kentik/api-schema-public@master`),
-run `make generate test`, and update `kentik-api.json`.
+Accessors are generated (ADR 0005); never hand-write one.
+
+1. `go get github.com/kentik/api-schema-public@master && go mod tidy`
+2. `make generate` regenerates `kentikapi/zz_*.go`, `kentikapi/experimental/zz_accessors.go` and
+   `kentik-api.json`.
+3. Review the diff. New stable versions appear as `Client.<Api><Version>()`; check whether an unversioned
+   alias moved (its return type changes: note it as a breaking change in `CHANGELOG.md`).
+4. If the generator fails with a name collision, extend the naming rules in `internal/cmd/gen/naming.go`.
+5. If a new list RPC pages in a new way, teach `paginationOf` in `internal/cmd/gen/schema.go` and
+   `kentikapi.Paginate` about it.
+6. `make build test lint vuln check-generate manifest`, then add a CHANGELOG entry.
 
 ## Release process
 
