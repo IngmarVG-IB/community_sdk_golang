@@ -17,7 +17,7 @@ import (
 
 func TestGeneratedAccessors(t *testing.T) {
 	f := &fakeSynthetics{getTest: okGetTest}
-	c := startBufconn(t, func(s *grpc.Server) {
+	c := startBufconn(t, func(s grpc.ServiceRegistrar) {
 		synthetics.RegisterSyntheticsAdminServiceServer(s, f)
 		bulk.RegisterSyntheticsBulkActionServiceServer(s, bulk.UnimplementedSyntheticsBulkActionServiceServer{})
 	})

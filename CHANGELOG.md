@@ -32,6 +32,12 @@ replaced the openapi-generator v6 clients with gRPC.
 - `kentikapi.Services()` / `LookupMethod()` registry (HTTP mapping, streaming, idempotency, pagination);
   retries use it to decide which RPCs are read-only.
 - `kentik-api.json` is now generated, and CI fails on generated-code drift.
+- `kentikapi.Paginate` (Go 1.23 `iter.Seq2`) and `CollectAll` for paged list RPCs (alerting
+  `PaginationConfig`, audit `offset`/`limit`), ADR 0006.
+- `kentikapitest`: in-memory bufconn fake server with pluggable services (`WithService`), per-RPC typed
+  handlers (`HandleUnary`), call recording, auth checks (`WithAuth`) and fault injection (`WithFaults`).
+- Runnable offline `Example*` functions (pkg.go.dev), package docs (`doc.go`), and compile-only example
+  programs in `examples/{synthetics,cloudexport,alerts,experimental}`.
 - `kentikapi.Version()` and a `kentik-community-sdk-golang/<version>` user agent.
 
 ### Deprecated

@@ -15,12 +15,16 @@ Go clients generated there. The legacy v5 REST API is still wrapped (deprecated,
 | `kentikapi/` | Public package: `Client` (`New`, `Close`, `Conn`), options, regions, auth, retries, rate limit, `Error`, logging, credentials helpers. |
 | `kentikapi/models/`, `kentikapi/internal/{api_*,resources,...}` | Legacy v5 REST layer. Deprecated, do not extend. |
 | `kentikapi/cloud/`, `kentikapi/internal/cloud/` | Legacy cloud_export v202101beta1 wrapper. Deprecated. |
+| `kentikapi/paginate.go` | `Paginate` / `CollectAll` iterators (`iter.Seq2`) for paged list RPCs. |
+| `kentikapitest/` | In-memory bufconn fake server (`NewServer`, `WithService`, `HandleUnary`, `WithAuth`, `WithFaults`). Use it for every new test. |
+| `examples/{synthetics,cloudexport,alerts,experimental}/` | v6 example programs. They call the live API: CI only compiles them. |
 | `examples/legacy/` | v5 and v202101beta1 usage examples (build tag `examples`). They call the live API, so CI only compiles them. |
 | `kentikapi/zz_accessors.go`, `kentikapi/zz_registry.go` | Generated: typed accessors for every stable service version, aliases, and the method registry. Do not edit. |
 | `kentikapi/experimental/` | Generated accessors for alpha/beta versions without a stable equivalent. |
 | `internal/cmd/gen/` | The generator (reads `proto/kentik/**` of the pinned api-schema-public from the module cache). |
 | `internal/cmd/manifestcheck/` | Validator for `kentik-api.json` (which is generated). |
-| `docs/adr/` | Architecture decision records (0004: v6 on api-schema-public gRPC). |
+| `docs/adr/` | Architecture decision records (0004 gRPC on api-schema-public, 0005 generator, 0006 fake server and pagination). |
+| `docs/UPGRADING.md` | Migration guide from v0.2.x. |
 | `kentik-api.json` | Machine-readable coverage manifest. |
 
 ## Commands

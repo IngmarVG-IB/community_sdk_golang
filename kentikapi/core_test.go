@@ -24,7 +24,7 @@ import (
 
 func newSynth(t *testing.T, f *fakeSynthetics, opts ...kentikapi.Option) synthetics.SyntheticsAdminServiceClient {
 	t.Helper()
-	c := startBufconn(t, func(s *grpc.Server) { synthetics.RegisterSyntheticsAdminServiceServer(s, f) }, opts...)
+	c := startBufconn(t, func(s grpc.ServiceRegistrar) { synthetics.RegisterSyntheticsAdminServiceServer(s, f) }, opts...)
 	return synthetics.NewSyntheticsAdminServiceClient(c.Conn())
 }
 
@@ -301,7 +301,7 @@ func TestLogger(t *testing.T) {
 
 func TestClose(t *testing.T) {
 	f := &fakeSynthetics{getTest: okGetTest}
-	c := startBufconn(t, func(s *grpc.Server) { synthetics.RegisterSyntheticsAdminServiceServer(s, f) })
+	c := startBufconn(t, func(s grpc.ServiceRegistrar) { synthetics.RegisterSyntheticsAdminServiceServer(s, f) })
 	require.NoError(t, c.Close())
 	require.NoError(t, c.Close(), "Close is idempotent")
 
@@ -328,7 +328,7 @@ func TestNewValidation(t *testing.T) {
 
 func TestEagerConnect(t *testing.T) {
 	f := &fakeSynthetics{getTest: okGetTest}
-	c := startBufconn(t, func(s *grpc.Server) { synthetics.RegisterSyntheticsAdminServiceServer(s, f) },
+	c := startBufconn(t, func(s grpc.ServiceRegistrar) { synthetics.RegisterSyntheticsAdminServiceServer(s, f) },
 		kentikapi.WithEagerConnect())
 	require.NotNil(t, c)
 
