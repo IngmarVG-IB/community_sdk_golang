@@ -21,6 +21,9 @@ jobs:
         go: ["1.26", "1.27"]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -28,12 +31,16 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: ${{ matrix.go }}
+      # Plain go commands here (not make) so the job also runs on Windows runners.
       - name: Build
-        run: make build
+        run: go build ./... && go build -tags examples ./...
       - name: Unit tests (offline)
-        run: make test
+        run: go test -count=1 ./...
+      - name: Unit tests with the race detector
+        if: runner.os == 'Linux'
+        run: go test -race -count=1 ./...
       - name: Compile examples (never run in CI; they target the live API)
-        run: make examples
+        run: go test -tags examples -count=1 -run '^$' ./examples/...
 
   lint:
     runs-on: ubuntu-latest

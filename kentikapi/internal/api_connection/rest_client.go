@@ -48,7 +48,7 @@ func NewRestClient(c RestClientConfig) *RestClient {
 //
 //nolint:dupl
 func (c *RestClient) Get(ctx context.Context, path string) (responseBody json.RawMessage, err error) {
-	ctx, cancel := context.WithTimeout(ctx, *c.config.Timeout)
+	ctx, cancel := c.withTimeout(ctx)
 	defer cancel()
 
 	request, err := c.newRequest(ctx, http.MethodGet, path, json.RawMessage{})
@@ -82,7 +82,7 @@ func (c *RestClient) Get(ctx context.Context, path string) (responseBody json.Ra
 func (c *RestClient) Post(
 	ctx context.Context, path string, payload json.RawMessage,
 ) (responseBody json.RawMessage, err error) {
-	ctx, cancel := context.WithTimeout(ctx, *c.config.Timeout)
+	ctx, cancel := c.withTimeout(ctx)
 	defer cancel()
 
 	request, err := c.newRequest(ctx, http.MethodPost, path, payload)
@@ -115,7 +115,7 @@ func (c *RestClient) Post(
 func (c *RestClient) Put(
 	ctx context.Context, path string, payload json.RawMessage,
 ) (responseBody json.RawMessage, err error) {
-	ctx, cancel := context.WithTimeout(ctx, *c.config.Timeout)
+	ctx, cancel := c.withTimeout(ctx)
 	defer cancel()
 
 	request, err := c.newRequest(ctx, http.MethodPut, path, payload)
@@ -146,7 +146,7 @@ func (c *RestClient) Put(
 //
 //nolint:dupl
 func (c *RestClient) Delete(ctx context.Context, path string) (responseBody json.RawMessage, err error) {
-	ctx, cancel := context.WithTimeout(ctx, *c.config.Timeout)
+	ctx, cancel := c.withTimeout(ctx)
 	defer cancel()
 
 	request, err := c.newRequest(ctx, http.MethodDelete, path, json.RawMessage{})
@@ -198,4 +198,12 @@ func (c *RestClient) newRequest(ctx context.Context, method string, path string,
 
 func (c *RestClient) makeFullURL(path string) string {
 	return c.config.APIURL + path
+}
+
+// withTimeout applies the configured timeout; a nil or non-positive timeout means none.
+func (c *RestClient) withTimeout(ctx context.Context) (context.Context, context.CancelFunc) {
+	if c.config.Timeout == nil || *c.config.Timeout <= 0 {
+		return context.WithCancel(ctx)
+	}
+	return context.WithTimeout(ctx, *c.config.Timeout)
 }

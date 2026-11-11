@@ -3,304 +3,270 @@ package kentikapi
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
 	"net/url"
-	"time"
+	"runtime/debug"
+	"sync"
 
-	"github.com/AlekSi/pointer"
-	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"golang.org/x/time/rate"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
 
 	"github.com/kentik/community_sdk_golang/kentikapi/internal/api_connection"
 	"github.com/kentik/community_sdk_golang/kentikapi/internal/cloud"
-	"github.com/kentik/community_sdk_golang/kentikapi/internal/httputil"
 	"github.com/kentik/community_sdk_golang/kentikapi/internal/resources"
 )
 
-//nolint:gosec
-const (
-	authAPITokenKey    = "X-CH-Auth-API-Token"
-	authEmailKey       = "X-CH-Auth-Email"
-	defaultTimeout     = 100 * time.Second
-	defaultMaxAttempts = 4
-	defaultMinDelay    = 1 * time.Second
-	defaultMaxDelay    = 30 * time.Second
-)
+const modulePath = "github.com/kentik/community_sdk_golang"
 
-// Kentik API URLs.
-const (
-	APIURLUS = "https://api.kentik.com"
-	APIURLEU = "https://api.kentik.eu"
-)
-
-// Client is the root object for manipulating all the Kentik API resources.
+// Client is the entry point to the Kentik APIs. Create it with [New] and release it with [Client.Close].
+// A Client is safe for concurrent use; create one per process and share it.
+//
+// v6 (gRPC) services are reached through typed accessors such as Client.SyntheticsV202309 or the
+// Client.Synthetics alias for the newest stable version. The exported fields are the legacy v5 REST
+// resources and are deprecated.
 type Client struct {
-	Alerting           *resources.AlertingAPI
-	Cloud              *cloud.API
+	// Deprecated: v5 REST resource. Use the v6 alerting accessors.
+	Alerting *resources.AlertingAPI
+	// Deprecated: wraps cloud_export v202101beta1 (beta, superseded). Use Client.CloudExport.
+	Cloud *cloud.API
+	// Deprecated: v5 REST resource. The v6 schema has custom_application v202501alpha1 (experimental).
 	CustomApplications *resources.CustomApplicationsAPI
-	CustomDimensions   *resources.CustomDimensionsAPI
-	DeviceLabels       *resources.DeviceLabelsAPI
-	Devices            *resources.DevicesAPI
-	MyKentikPortal     *resources.MyKentikPortalAPI
-	Plans              *resources.PlansAPI
-	Query              *resources.QueryAPI
-	SavedFilters       *resources.SavedFiltersAPI
-	Sites              *resources.SitesAPI
-	Tags               *resources.TagsAPI
-	Users              *resources.UsersAPI
+	// Deprecated: v5 REST resource. The v6 schema has custom_dimension v202411alpha1 (experimental).
+	CustomDimensions *resources.CustomDimensionsAPI
+	// Deprecated: v5 REST resource. Use Client.Label (label v202210).
+	DeviceLabels *resources.DeviceLabelsAPI
+	// Deprecated: v5 REST resource. The v6 schema has device v202504beta2 (experimental).
+	Devices *resources.DevicesAPI
+	// Deprecated: v5 REST resource. Use Client.MKP (mkp v202407).
+	MyKentikPortal *resources.MyKentikPortalAPI
+	// Deprecated: v5 REST resource. The v6 schema has plan v202501alpha1 (experimental).
+	Plans *resources.PlansAPI
+	// Deprecated: v5 REST resource (no v6 equivalent yet).
+	Query *resources.QueryAPI
+	// Deprecated: v5 REST resource. The v6 schema has saved_filter v202501alpha1 (experimental).
+	SavedFilters *resources.SavedFiltersAPI
+	// Deprecated: v5 REST resource. Use Client.Site (site v202509).
+	Sites *resources.SitesAPI
+	// Deprecated: v5 REST resource. The v6 schema has flow_tag v202404alpha1 (experimental).
+	Tags *resources.TagsAPI
+	// Deprecated: v5 REST resource. Use Client.User (user v202211).
+	Users *resources.UsersAPI
 
-	config config
+	conn      *grpc.ClientConn
+	cfg       config
+	limiter   *rate.Limiter
+	logger    *slog.Logger
+	closeOnce sync.Once
+	closeErr  error
 }
 
-type config struct {
-	APIURL    string
-	AuthEmail string
-	AuthToken string
-	RetryCfg  RetryConfig
-
-	LogPayloads bool
-	Timeout     time.Duration
-}
-
-type RetryConfig = httputil.RetryConfig
-
-// ClientOption defines an option for a Client.
-type ClientOption func(*config)
-
-// WithAPIURL sets the Kentik API URL. Default: "https://api.kentik.com".
-func WithAPIURL(apiURL string) ClientOption {
-	return func(c *config) {
-		c.APIURL = apiURL
+// New creates a Client. Without options it targets the US region with no credentials; pass at least
+// [WithCredentials]. New does not perform network I/O unless [WithEagerConnect] is given, in which case it
+// waits for the connection until ctx is done.
+func New(ctx context.Context, opts ...Option) (*Client, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
 	}
-}
-
-// WithCredentials specifies authentication email and token for the Client.
-func WithCredentials(authEmail, authToken string) ClientOption {
-	return func(c *config) {
-		c.AuthEmail = authEmail
-		c.AuthToken = authToken
-	}
-}
-
-// WithTimeout specifies a limit of a total time of a single client call, including redirects and retries.
-// Default: 100 seconds.
-func WithTimeout(timeout time.Duration) ClientOption {
-	return func(c *config) {
-		if timeout != 0 {
-			c.Timeout = timeout
+	cfg := defaultConfig()
+	for _, opt := range opts {
+		if opt != nil {
+			opt(&cfg)
 		}
 	}
-}
+	cfg.retry = cfg.retry.normalized()
 
-// WithRetryMaxAttempts specifies maximum number of request retry attempts. Set to 0 to disable retrying. Default: 4.
-func WithRetryMaxAttempts(maxAttempts uint) ClientOption {
-	return func(c *config) {
-		c.RetryCfg.MaxAttempts = &maxAttempts
-	}
-}
-
-// WithRetryMinDelay specifies a minimum delay before request retry. Default: 1 second.
-func WithRetryMinDelay(minDelay time.Duration) ClientOption {
-	return func(c *config) {
-		c.RetryCfg.MinDelay = &minDelay
-	}
-}
-
-// WithRetryMaxDelay specifies a maximum delay before request retry. Default: 30 seconds.
-func WithRetryMaxDelay(maxDelay time.Duration) ClientOption {
-	return func(c *config) {
-		c.RetryCfg.MaxDelay = &maxDelay
-	}
-}
-
-// WithLogPayloads enables logging of request and response payloads.
-func WithLogPayloads() ClientOption {
-	return func(c *config) {
-		c.LogPayloads = true
-	}
-}
-
-// NewClient creates a new Kentik API client.
-func NewClient(opts ...ClientOption) (*Client, error) {
-	c := config{
-		APIURL:  APIURLUS,
-		Timeout: defaultTimeout,
-		RetryCfg: RetryConfig{
-			MaxAttempts: pointer.ToUint(defaultMaxAttempts),
-			MinDelay:    new(defaultMinDelay),
-			MaxDelay:    new(defaultMaxDelay),
-		},
-	}
-	for _, opt := range opts {
-		opt(&c)
-	}
-	apiV5URL, err := makeAPIV5URL(c.APIURL)
-	if err != nil {
-		return nil, fmt.Errorf("make API v5 URL: %w", err)
-	}
-
-	grpcConnection, err := makeConnForGRPC(c)
-	if err != nil {
-		return nil, fmt.Errorf("grpc connection: %w", err)
-	}
-	rc := api_connection.NewRestClient(api_connection.RestClientConfig{
-		APIURL:    apiV5URL,
-		AuthEmail: c.AuthEmail,
-		AuthToken: c.AuthToken,
-		RetryCfg:  c.RetryCfg,
-		Timeout:   &c.Timeout,
-	})
-	return &Client{
-		Alerting:           resources.NewAlertingAPI(rc, c.LogPayloads),
-		Cloud:              cloud.NewAPI(grpcConnection),
-		CustomApplications: resources.NewCustomApplicationsAPI(rc, c.LogPayloads),
-		CustomDimensions:   resources.NewCustomDimensionsAPI(rc, c.LogPayloads),
-		DeviceLabels:       resources.NewDeviceLabelsAPI(rc, c.LogPayloads),
-		Devices:            resources.NewDevicesAPI(rc, c.LogPayloads),
-		MyKentikPortal:     resources.NewMyKentikPortalAPI(rc, c.LogPayloads),
-		Plans:              resources.NewPlansAPI(rc, c.LogPayloads),
-		Query:              resources.NewQueryAPI(rc, c.LogPayloads),
-		SavedFilters:       resources.NewSavedFiltersAPI(rc, c.LogPayloads),
-		Sites:              resources.NewSitesAPI(rc, c.LogPayloads),
-		Tags:               resources.NewTagsAPI(rc, c.LogPayloads),
-		Users:              resources.NewUsersAPI(rc, c.LogPayloads),
-
-		config: c,
-	}, nil
-}
-
-func makeAPIV5URL(apiURL string) (string, error) {
-	u, err := url.Parse(apiURL)
-	if err != nil {
-		return "", err
-	}
-	u.Path += "/api/v5"
-	return u.String(), nil
-}
-
-func makeConnForGRPC(c config) (grpc.ClientConnInterface, error) {
-	grpcHostPort, tlsEnabled, err := makeGRPCHostPort(c.APIURL)
+	target, apiURL, plaintext, err := resolveEndpoints(cfg)
 	if err != nil {
 		return nil, err
 	}
-	return grpc.NewClient(
-		grpcHostPort,
-		makeTLSOption(tlsEnabled),
-		grpc.WithUnaryInterceptor(
-			grpcmiddleware.ChainUnaryClient(
-				makeTimeoutInterceptor(c),
-				makeLoggerInterceptor(c),
-				makeAuthInterceptor(c),
-				makeRetryInterceptor(c),
-			),
-		),
-	)
+
+	c := &Client{cfg: cfg, logger: cfg.logger}
+	if c.logger == nil {
+		if cfg.logPayloads {
+			c.logger = slog.Default()
+		} else {
+			c.logger = slog.New(slog.DiscardHandler)
+		}
+	}
+	if cfg.rateLimit > 0 {
+		c.limiter = rate.NewLimiter(cfg.rateLimit, cfg.rateBurst)
+	}
+
+	dialOpts := []grpc.DialOption{
+		grpc.WithUserAgent(userAgent(cfg.userAgent)),
+		grpc.WithChainUnaryInterceptor(c.unaryInterceptor),
+		grpc.WithChainStreamInterceptor(c.streamInterceptor),
+	}
+	if plaintext {
+		dialOpts = append(dialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	} else {
+		dialOpts = append(dialOpts, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
+			MinVersion: tls.VersionTLS13,
+		})))
+	}
+	switch {
+	case cfg.perRPC != nil:
+		dialOpts = append(dialOpts, grpc.WithPerRPCCredentials(cfg.perRPC))
+	case cfg.authEmail != "" || cfg.authToken != "":
+		dialOpts = append(dialOpts, grpc.WithPerRPCCredentials(
+			tokenCredentials{email: cfg.authEmail, token: cfg.authToken, insecure: plaintext}))
+	}
+	dialOpts = append(dialOpts, cfg.dialOptions...)
+
+	conn, err := grpc.NewClient(target, dialOpts...)
+	if err != nil {
+		return nil, fmt.Errorf("kentikapi: create gRPC client for %q: %w", target, err)
+	}
+	c.conn = conn
+
+	if cfg.eagerConnect {
+		if err := waitReady(ctx, conn); err != nil {
+			_ = conn.Close()
+			return nil, fmt.Errorf("kentikapi: connect to %q: %w", target, err)
+		}
+	}
+
+	c.initLegacy(apiURL)
+	return c, nil
 }
 
-func makeGRPCHostPort(apiURL string) (grpcHostPort string, tlsEnabled bool, err error) {
-	tlsEnabled = false
+// NewClient creates a Client without a context.
+//
+// Deprecated: use [New].
+func NewClient(opts ...ClientOption) (*Client, error) {
+	return New(context.Background(), opts...)
+}
+
+// Conn returns the underlying gRPC connection, already configured with authentication, retries, rate
+// limiting and logging. Use it to build any generated api-schema-public client directly:
+//
+//	svc := synthetics.NewSyntheticsAdminServiceClient(client.Conn())
+func (c *Client) Conn() grpc.ClientConnInterface { return c.conn }
+
+// Close releases the connection. Calls in flight fail with codes.Canceled. Close is idempotent.
+func (c *Client) Close() error {
+	c.closeOnce.Do(func() {
+		if c.conn != nil {
+			c.closeErr = c.conn.Close()
+		}
+	})
+	return c.closeErr
+}
+
+func (c *Client) initLegacy(apiURL string) {
+	rc := api_connection.NewRestClient(api_connection.RestClientConfig{
+		APIURL:    apiURL + "/api/v5",
+		AuthEmail: c.cfg.authEmail,
+		AuthToken: c.cfg.authToken,
+		RetryCfg:  c.cfg.legacyRetry,
+		Timeout:   &c.cfg.timeout,
+	})
+	lp := c.cfg.logPayloads
+	c.Alerting = resources.NewAlertingAPI(rc, lp)
+	c.Cloud = cloud.NewAPI(c.conn)
+	c.CustomApplications = resources.NewCustomApplicationsAPI(rc, lp)
+	c.CustomDimensions = resources.NewCustomDimensionsAPI(rc, lp)
+	c.DeviceLabels = resources.NewDeviceLabelsAPI(rc, lp)
+	c.Devices = resources.NewDevicesAPI(rc, lp)
+	c.MyKentikPortal = resources.NewMyKentikPortalAPI(rc, lp)
+	c.Plans = resources.NewPlansAPI(rc, lp)
+	c.Query = resources.NewQueryAPI(rc, lp)
+	c.SavedFilters = resources.NewSavedFiltersAPI(rc, lp)
+	c.Sites = resources.NewSitesAPI(rc, lp)
+	c.Tags = resources.NewTagsAPI(rc, lp)
+	c.Users = resources.NewUsersAPI(rc, lp)
+}
+
+// resolveEndpoints returns the gRPC target, the v5 REST base URL and whether TLS is disabled.
+func resolveEndpoints(cfg config) (target, apiURL string, plaintext bool, err error) {
+	ri, err := cfg.region.info()
+	if err != nil {
+		return "", "", false, err
+	}
+	target, apiURL, plaintext = ri.grpcEndpoint, ri.apiURL, cfg.insecure
+	if cfg.apiURL != "" {
+		apiURL = cfg.apiURL
+		if cfg.endpoint == "" {
+			var tlsOn bool
+			target, tlsOn, err = grpcTargetFromAPIURL(cfg.apiURL)
+			if err != nil {
+				return "", "", false, fmt.Errorf("kentikapi: invalid API URL %q: %w", cfg.apiURL, err)
+			}
+			plaintext = plaintext || !tlsOn
+		}
+	}
+	if cfg.endpoint != "" {
+		target = cfg.endpoint
+	}
+	return target, apiURL, plaintext, nil
+}
+
+// grpcTargetFromAPIURL keeps the pre-v0.3 mapping: https://api.kentik.com -> grpc.api.kentik.com:443.
+// IP addresses (local test servers) are used as-is.
+func grpcTargetFromAPIURL(apiURL string) (target string, tlsEnabled bool, err error) {
 	u, err := url.Parse(apiURL)
 	if err != nil {
 		return "", false, err
 	}
-	grpcHostPort = u.Host
-	if u.Scheme == "https" {
-		tlsEnabled = true
-		if u.Port() == "" {
-			grpcHostPort += ":443"
+	if u.Host == "" {
+		return "", false, errors.New("missing host")
+	}
+	tlsEnabled = u.Scheme == "https"
+	port := u.Port()
+	if port == "" {
+		port = "80"
+		if tlsEnabled {
+			port = "443"
 		}
 	}
-	if u.Scheme == "http" && u.Port() == "" {
-		grpcHostPort += ":80"
+	host := u.Hostname()
+	if net.ParseIP(host) == nil {
+		host = "grpc." + host
 	}
-	hostIP := net.ParseIP(u.Hostname())
-	if hostIP != nil {
-		return grpcHostPort, tlsEnabled, nil
-	}
-	return "grpc." + grpcHostPort, tlsEnabled, nil
+	return net.JoinHostPort(host, port), tlsEnabled, nil
 }
 
-func makeTLSOption(tlsEnabled bool) grpc.DialOption {
-	if !tlsEnabled {
-		return grpc.WithTransportCredentials(insecure.NewCredentials())
-	}
-	return grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
-		MinVersion: tls.VersionTLS13,
-	}))
-}
-
-func makeTimeoutInterceptor(c config) grpc.UnaryClientInterceptor {
-	return func(ctx context.Context, method string, req, reply any,
-		cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
-	) error {
-		ctx, cancel := context.WithTimeout(ctx, c.Timeout)
-		defer cancel()
-		return invoker(ctx, method, req, reply, cc, opts...)
-	}
-}
-
-func makeAuthInterceptor(c config) grpc.UnaryClientInterceptor {
-	return func(ctx context.Context, method string, req, reply any,
-		cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
-	) error {
-		ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs(
-			authEmailKey, c.AuthEmail,
-			authAPITokenKey, c.AuthToken,
-		))
-		return invoker(ctx, method, req, reply, cc, opts...)
-	}
-}
-
-func makeRetryInterceptor(c config) grpc.UnaryClientInterceptor {
-	return grpcretry.UnaryClientInterceptor(
-		grpcretry.WithBackoff(grpcretry.BackoffExponential(*c.RetryCfg.MinDelay)),
-		grpcretry.WithCodes(
-			codes.Unavailable,
-			codes.ResourceExhausted,
-			codes.FailedPrecondition,
-			codes.Aborted,
-		),
-		// grpcretry.WithMax specifies the number of total requests sent and not retries
-		grpcretry.WithMax(*c.RetryCfg.MaxAttempts+1),
-	)
-}
-
-func makeLoggerInterceptor(c config) grpc.UnaryClientInterceptor {
-	return func(ctx context.Context, method string, req, reply any,
-		cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
-	) error {
-		if c.LogPayloads {
-			log.Printf(
-				"Kentik API request: target=%s method=%s payload=%v",
-				cc.Target(), method, sanitizePayload(fmt.Sprint(req)),
-			)
+func waitReady(ctx context.Context, conn *grpc.ClientConn) error {
+	conn.Connect()
+	for {
+		s := conn.GetState()
+		if s == connectivity.Ready {
+			return nil
 		}
-		err := invoker(ctx, method, req, reply, cc, opts...)
-		if c.LogPayloads {
-			log.Printf(
-				"Kentik API response: target=%s method=%s payload=%v error=%v",
-				cc.Target(), method, sanitizePayload(fmt.Sprint(reply)), err,
-			)
+		if s == connectivity.Shutdown {
+			return errors.New("connection shut down")
 		}
-		return err
+		if !conn.WaitForStateChange(ctx, s) {
+			return ctx.Err()
+		}
 	}
 }
 
-func sanitizePayload(payload string) string {
-	if payload == "" {
-		return "<empty>"
+// Version returns the SDK module version as recorded in the binary's build info, or "devel".
+func Version() string {
+	if bi, ok := debug.ReadBuildInfo(); ok {
+		if bi.Main.Path == modulePath && bi.Main.Version != "" && bi.Main.Version != "(devel)" {
+			return bi.Main.Version
+		}
+		for _, d := range bi.Deps {
+			if d.Path == modulePath {
+				return d.Version
+			}
+		}
 	}
+	return "devel"
+}
 
-	const maxLoggedPayloadSize = 10000
-	if len(payload) > maxLoggedPayloadSize {
-		return fmt.Sprintf("<size: %v bytes>", len(payload))
+func userAgent(prefix string) string {
+	ua := "kentik-community-sdk-golang/" + Version()
+	if prefix != "" {
+		ua = prefix + " " + ua
 	}
-	return payload
+	return ua
 }

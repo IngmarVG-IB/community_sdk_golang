@@ -10,7 +10,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/kentik/community_sdk_golang/examples"
+	examples "github.com/kentik/community_sdk_golang/examples/legacy"
 	"github.com/kentik/community_sdk_golang/kentikapi/models"
 )
 

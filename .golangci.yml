@@ -35,6 +35,10 @@ linters:
       - path: ^kentikapi/(internal/cloud/|cloud_exports_integration_test\.go)
         linters: [staticcheck]
         text: SA1019
+      # Legacy code and its tests/examples exercise deprecated identifiers on purpose.
+      - path: ^(examples/legacy/|kentikapi/(internal/|models/|cloud/)|kentikapi/[a-z_]+_integration_test\.go)
+        linters: [staticcheck]
+        text: SA1019
       # Developer tools read paths given on the command line by the developer.
       - path: ^internal/cmd/
         linters: [gosec]

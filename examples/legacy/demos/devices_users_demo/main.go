@@ -8,7 +8,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 
-	"github.com/kentik/community_sdk_golang/examples/demos"
+	"github.com/kentik/community_sdk_golang/examples/legacy/demos"
 	"github.com/kentik/community_sdk_golang/kentikapi"
 	"github.com/kentik/community_sdk_golang/kentikapi/models"
 )

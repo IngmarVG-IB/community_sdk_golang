@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/kentik/community_sdk_golang/examples/demos"
+	"github.com/kentik/community_sdk_golang/examples/legacy/demos"
 	"github.com/kentik/community_sdk_golang/kentikapi"
 )
 

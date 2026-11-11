@@ -12,12 +12,12 @@ Go clients generated there. The legacy v5 REST API is still wrapped (deprecated,
 
 | path | what |
 |---|---|
-| `kentikapi/` | Public package: `Client`, options, errors, credentials helpers. |
+| `kentikapi/` | Public package: `Client` (`New`, `Close`, `Conn`), options, regions, auth, retries, rate limit, `Error`, logging, credentials helpers. |
 | `kentikapi/models/`, `kentikapi/internal/{api_*,resources,...}` | Legacy v5 REST layer. Deprecated, do not extend. |
 | `kentikapi/cloud/`, `kentikapi/internal/cloud/` | Legacy cloud_export v202101beta1 wrapper. Deprecated. |
-| `examples/` | Usage examples (build tag `examples`). They call the live API, so CI only compiles them. |
+| `examples/legacy/` | v5 and v202101beta1 usage examples (build tag `examples`). They call the live API, so CI only compiles them. |
 | `internal/cmd/manifestcheck/` | Validator for `kentik-api.json`. |
-| `docs/adr/` | Architecture decision records. |
+| `docs/adr/` | Architecture decision records (0004: v6 on api-schema-public gRPC). |
 | `kentik-api.json` | Machine-readable coverage manifest. |
 
 ## Commands

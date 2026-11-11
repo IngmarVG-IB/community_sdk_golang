@@ -151,6 +151,7 @@ func TestClient_GetUserWithRetries(t *testing.T) {
 
 			// act
 			result, err := c.Users.Get(context.Background(), testUserID)
+			s.Close() // wait for in-flight handlers before reading the spy's state
 
 			// assert
 			t.Logf("Got result: %v, err: %v", result, err)
