@@ -40,12 +40,22 @@ replaced the openapi-generator v6 clients with gRPC.
   programs in `examples/{synthetics,cloudexport,alerts,experimental}`.
 - `kentikapi.Version()` and a `kentik-community-sdk-golang/<version>` user agent.
 
+- `docs/UPGRADING.md` (from v0.2.0, master `62e10d7` and dev_grpc `5f9f1d7`) and
+  `docs/upgrading/models-v0.2.0.txt` (apidiff of the v5 models).
+- `kentikapi.Config` is back (deprecated) and implements `Option`, so v0.2.x code
+  `kentikapi.NewClient(kentikapi.Config{...})` compiles again; it now also returns an error.
+
 ### Deprecated
 - `NewClient` (use `New`), `ClientOption` (use `Option`), `WithAPIURL` (use `WithRegion`/`WithEndpoint`),
   `RetryConfig`, `APIURLUS`/`APIURLEU`, every v5 REST field on `Client`, the `kentikapi/models` package, and
   `Client.Cloud` with the `kentikapi/cloud` package (cloud_export v202101beta1).
 
 ### Changed
+- `Option` (and its alias `ClientOption`) is now an interface instead of a function type, so `Config`
+  can be passed as an option. Code that only calls the `With*` constructors is unaffected.
+- Retries of v6 calls apply only to read-only RPCs by default (`IsIdempotent`), and the default codes are
+  Unavailable, ResourceExhausted and DeadlineExceeded (dev_grpc retried FailedPrecondition and Aborted on
+  every RPC).
 - Legacy examples moved to `examples/legacy/`.
 - `WithLogPayloads` now logs through `log/slog` (`slog.Default()` unless `WithLogger` is set).
 - `WithTimeout` accepts a negative value to disable the overall timeout (0 still keeps the default).
@@ -58,6 +68,9 @@ replaced the openapi-generator v6 clients with gRPC.
 - Replaced deprecated `io/ioutil` and `reflect.PtrTo` usage.
 
 ### Removed
+- (since v0.2.x master) the openapi-generated `kentikapi/synthetics`, `kentikapi/cloudexport` and
+  `kentikapi/fakeapiserver` packages and the `Client.*ServiceAPI` fields; removed on dev_grpc, see
+  docs/UPGRADING.md.
 - The synthetics v202202 layer (`kentikapi/synthetics` package and `Client.Synthetics` field). The
   generated code it wrapped (`gen/go/kentik/synthetics/v202202`) no longer exists in api-schema-public.
   Its tests were removed with it.

@@ -43,7 +43,7 @@ func TestResolveEndpoints(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := defaultConfig()
 			for _, o := range tt.opts {
-				o(&cfg)
+				o.apply(&cfg)
 			}
 			target, apiURL, plaintext, err := resolveEndpoints(cfg)
 			require.NoError(t, err)
@@ -54,7 +54,7 @@ func TestResolveEndpoints(t *testing.T) {
 	}
 
 	cfg := defaultConfig()
-	WithAPIURL("://bad")(&cfg)
+	WithAPIURL("://bad").apply(&cfg)
 	_, _, _, err := resolveEndpoints(cfg)
 	assert.Error(t, err)
 }
@@ -105,4 +105,14 @@ func TestSplitMethod(t *testing.T) {
 	svc, m := splitMethod("/kentik.synthetics.v202309.SyntheticsAdminService/ListTests")
 	assert.Equal(t, "kentik.synthetics.v202309.SyntheticsAdminService", svc)
 	assert.Equal(t, "ListTests", m)
+}
+
+func TestLegacyConfigApply(t *testing.T) {
+	cfg := defaultConfig()
+	Config{APIURL: "https://api.kentik.eu/api/v5/"}.apply(&cfg)
+	target, apiURL, plaintext, err := resolveEndpoints(cfg)
+	require.NoError(t, err)
+	assert.Equal(t, "grpc.api.kentik.eu:443", target)
+	assert.Equal(t, "https://api.kentik.eu", apiURL)
+	assert.False(t, plaintext)
 }

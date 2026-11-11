@@ -76,7 +76,7 @@ func New(ctx context.Context, opts ...Option) (*Client, error) {
 	cfg := defaultConfig()
 	for _, opt := range opts {
 		if opt != nil {
-			opt(&cfg)
+			opt.apply(&cfg)
 		}
 	}
 	cfg.retry = cfg.retry.normalized()
@@ -136,7 +136,8 @@ func New(ctx context.Context, opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-// NewClient creates a Client without a context.
+// NewClient creates a Client without a context. It accepts the v0.2.x [Config] struct as well as options.
+// Unlike v0.2.0 it also returns an error.
 //
 // Deprecated: use [New].
 func NewClient(opts ...ClientOption) (*Client, error) {

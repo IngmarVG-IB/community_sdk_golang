@@ -68,3 +68,7 @@ func fastRetries() kentikapi.RetryPolicy {
 	p.MaxBackoff = 10 * time.Microsecond
 	return p
 }
+
+func okGetTestUnary(ctx context.Context, req *synthetics.GetTestRequest) (*synthetics.GetTestResponse, error) {
+	return okGetTest(ctx, 0, req)
+}
