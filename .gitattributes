@@ -1,2 +1,9 @@
+# Check out text with LF everywhere (Windows runners default to CRLF via core.autocrlf),
+# so generated files compare byte-for-byte with `make generate` output on every OS.
+* text=auto eol=lf
+
 go.mod linguist-generated
 go.sum linguist-generated
+kentikapi/zz_*.go linguist-generated
+kentikapi/experimental/zz_*.go linguist-generated
+kentik-api.json linguist-generated
