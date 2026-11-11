@@ -61,7 +61,9 @@ Accessors are generated (ADR 0005); never hand-write one.
 ## Release process
 
 1. Make sure `make ci` passes on `master` and `CHANGELOG.md` has the release notes under a version heading.
-2. Tag `vX.Y.Z` (semver) on `master` and create a GitHub release from it. Never tag from a feature branch.
+2. Pick the version: while < v1, a schema bump that moves an unversioned alias or removes a version is a
+   minor bump; everything else is a patch. See the recommendation at the end of `docs/UPGRADING.md`.
+3. Tag `vX.Y.Z` (semver) on `master` and create a GitHub release from it. Never tag from a feature branch.
 
 ## Conventions
 
@@ -79,3 +81,6 @@ Accessors are generated (ADR 0005); never hand-write one.
 - Do not extend the v5 REST layer. Keep its exported identifiers compiling and marked `// Deprecated:`.
 - Do not hand-edit generated files; change the generator and run `make generate`.
 - Do not break exported identifiers without a migration note in `docs/UPGRADING.md` and `CHANGELOG.md`.
+  Check with `apidiff` (golang.org/x/exp/cmd/apidiff) against the last tag.
+- Do not commit `kentik-api.json` edits by hand; it is generated.
+- Do use versioned accessors (`SyntheticsV202309()`) in library code; aliases change type over time.

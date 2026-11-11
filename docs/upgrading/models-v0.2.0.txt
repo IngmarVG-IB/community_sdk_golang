@@ -1,0 +1,115 @@
+# Incompatible changes in package kentikapi/models, v0.2.0 -> this branch
+# Generated with: apidiff -incompatible (golang.org/x/exp/cmd/apidiff). Most come from the unreleased dev_grpc line (2021-12..2022-07).
+- (*Device).WithBGPTypeOtherDevice: changed from func(ID) *Device to func(ID) *Device
+- Alarm.AlarmID: changed from int to string
+- Alarm.AlarmLastComent: removed
+- Alarm.AlertID: changed from int to string
+- Alarm.ID: changed from int to string
+- Alarm.MitAlertID: changed from int to string
+- Alarm.MitTresholdID: removed
+- Alarm.MitigationID: changed from int to *ID
+- Alarm.PolicyID: changed from int to string
+- Alarm.TresholdID: removed
+- AllInterfaces.DeviceID: changed from int to string
+- AppliedLabels.ID: changed from int to string
+- CustomApplication.CompanyID: changed from int to string
+- CustomApplication.ID: changed from int to string
+- CustomApplication.UserID: changed from *ID to *ID
+- CustomDimension.CompanyID: changed from int to string
+- CustomDimension.ID: changed from int to string
+- Device.CompanyID: changed from int to string
+- Device.DeviceSNMNPIP: removed
+- Device.ID: changed from int to string
+- Device.PlanID: changed from *ID to *ID
+- Device.SendingIPS: removed
+- Device.SiteID: changed from *ID to *ID
+- Device.UseBGPDeviceID: changed from *ID to *ID
+- DeviceItem.ID: changed from int to string
+- DeviceLabel.CompanyID: changed from int to string
+- DeviceLabel.ID: changed from int to string
+- DeviceLabel.UserID: changed from *ID to *ID
+- DevicePlan.CompanyID: changed from *ID to *ID
+- DevicePlan.ID: changed from *ID to *ID
+- DeviceSite.CompanyID: changed from *ID to *ID
+- DeviceSite.ID: changed from *ID to *ID
+- DeviceSubtypeA10Cgn: removed
+- DeviceSubtypeAdvancedSflow: removed
+- DeviceSubtypeAwsSubnet: removed
+- DeviceSubtypeCiscoAsa: removed
+- DeviceSubtypeCiscoAsaSyslog: removed
+- DeviceSubtypeCiscoNbar: removed
+- DeviceSubtypeGcpSubnet: removed
+- DeviceSubtypeIbmSubnet: removed
+- DeviceSubtypeIosxr: removed
+- DeviceSubtypeKprobe: removed
+- DeviceSubtypeMpls: removed
+- DeviceSubtypeNprobe: removed
+- DeviceSubtypePaloalto: removed
+- DeviceSubtypePfeSyslog: removed
+- DimensionTypeDstBGPAspath: removed
+- DimensionTypeDstNexthopASN: removed
+- DimensionTypeDstNexthopIP: removed
+- DimensionTypeSrcBGPAspath: removed
+- DimensionTypeSrcNexthopASN: removed
+- DimensionTypeSrcNexthopIP: removed
+- DimensionTypeVLANSRC: removed
+- Filter.ID: changed from *ID to *ID
+- FilterGroups.ID: changed from *ID to *ID
+- HistoricalAlert.AlarmID: changed from int to string
+- HistoricalAlert.AlertID: changed from int to string
+- HistoricalAlert.ID: changed from int to string
+- HistoricalAlert.MitMethodID: changed from int to string
+- HistoricalAlert.MitigationID: changed from *int to *ID
+- HistoricalAlert.PolicyID: changed from int to string
+- HistoricalAlert.ThresholdID: changed from int to string
+- ID: changed from int to string
+- Interface.CompanyID: changed from int to string
+- Interface.DeviceID: changed from int to string
+- Interface.ID: changed from int to string
+- Interface.SNMPID: changed from int to string
+- Interface.VRFID: changed from *ID to *ID
+- ManualMitigation.MethodID: changed from int to string
+- ManualMitigation.PlatformID: changed from int to string
+- MetricTypeApplLatency: removed
+- MetricTypePercFragmets: removed
+- NewAggregate: changed from func(string, string, AggregateFunctionType) Aggregate to func(AggregateRequiredFields) Aggregate
+- NewCustomDimension: changed from func(string, string, CustomDimensionType) *CustomDimension to func(CustomDimensionRequiredFields) *CustomDimension
+- NewDeviceDNS: changed from func(string, DeviceSubtype, int, ID, CDNAttribute) *Device to func(DeviceDNSRequiredFields) *Device
+- NewDeviceLabel: changed from func(string, string) *DeviceLabel to func(DeviceLabelRequiredFields) *DeviceLabel
+- NewDeviceRouter: changed from func(string, DeviceSubtype, int, ID, []string, bool) *Device to func(DeviceRouterRequiredFields) *Device
+- NewInterface: changed from func(ID, ID, int, string) *Interface to func(InterfaceRequiredFields) *Interface
+- NewPopulator: changed from func(ID, string, string, PopulatorDirection) *Populator to func(PopulatorRequiredFields) *Populator
+- NewQuery: changed from func(MetricType, []DimensionType) *Query to func(QueryRequiredFields) *Query
+- NewSavedFilter: changed from func(string, string, string, Filters) SavedFilter to func(SavedFilterRequiredFields) *SavedFilter
+- NewVRFAttributes: changed from func(string, string, string) *VRFAttributes to func(VRFAttributesRequiredFields) *VRFAttributes
+- Plan.CompanyID: changed from int to string
+- Plan.ID: changed from int to string
+- PlanDevice.ID: changed from int to string
+- Populator.CompanyID: changed from int to string
+- Populator.DimensionID: changed from int to string
+- Populator.ID: changed from int to string
+- Populator.VLans: removed
+- SavedFilter.CompanyID: changed from int to string
+- SavedFilter.ID: changed from int to string
+- SetOptional: removed
+- Site.CompanyID: changed from int to string
+- Site.ID: changed from int to string
+- Tag.BGPAspath: removed
+- Tag.CompanyID: changed from int to string
+- Tag.ID: changed from int to string
+- Tag.LasthopAsName: removed
+- Tag.Nexthop: removed
+- Tag.NexthopAsName: removed
+- Tag.NexthopAsn: removed
+- Tag.UserID: changed from int to string
+- Tenant.CompanyID: changed from *ID to *ID
+- Tenant.ID: changed from int to string
+- TenantUser.CompanyID: changed from int to string
+- TenantUser.Fullname: removed
+- TenantUser.ID: changed from int to string
+- TenantUser.TenantID: changed from int to string
+- User.CompanyID: changed from int to string
+- User.ID: changed from int to string
+- VRFAttributes.CompanyID: changed from int to string
+- VRFAttributes.DeviceID: changed from int to string
+- VRFAttributes.ID: changed from int to string
